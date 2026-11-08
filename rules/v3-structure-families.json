@@ -1,0 +1,74 @@
+{
+  "SchemaVersion": 1,
+  "Version": "1.0.0",
+  "Families": [
+    {
+      "Audio": "absent",
+      "MaxImage": 8388608,
+      "Encoding": "utf8-relative-no-dot-segments",
+      "WindowPolicy": "existing-movie115-window-attempt",
+      "ProjectType": "movie",
+      "MaxTable": 1048576,
+      "Magic": "0x03505743",
+      "Id": "v3-directory-movie115-audio-absent",
+      "MaxSourceMiB": 256,
+      "Required": [
+        "project.json",
+        "scene.json"
+      ],
+      "MaxMembers": 20480,
+      "Parser": "cwp-v3-directory-519000-v1",
+      "Layout": "offset-decoded-stored-blocks-boundaries-utf8",
+      "EvidenceHashes": [
+        "bc91c36fa341f8327b1301e9b063a53a0774eab5d9659fe9dca9f4a778e761c1"
+      ],
+      "ProjectVersion": 115,
+      "Compression": "proven-aes-cbc-raw-deflate",
+      "Covers": [
+        "preview.jpg",
+        "preview.png"
+      ],
+      "Header": "magic-u32-length-u32-table-i32-bias",
+      "Coverage": "contiguous-through-eof",
+      "MemberFlags": "block-count-boundaries-only",
+      "References": "known-relative-member-presence",
+      "MaxMetadataBytes": 1048576,
+      "MaxMetadataMembers": 64,
+      "MaxPixels": 16000000
+    },
+    {
+      "Audio": "present",
+      "MaxImage": 8388608,
+      "Encoding": "utf8-relative-no-dot-segments",
+      "WindowPolicy": "existing-movie115-window-attempt",
+      "ProjectType": "movie",
+      "MaxTable": 1048576,
+      "Magic": "0x03505743",
+      "Id": "v3-directory-movie115-audio-present",
+      "MaxSourceMiB": 256,
+      "Required": [
+        "project.json",
+        "scene.json"
+      ],
+      "MaxMembers": 20480,
+      "Parser": "cwp-v3-directory-519000-v1",
+      "Layout": "offset-decoded-stored-blocks-boundaries-utf8",
+      "EvidenceHashes": [
+        "4bae488b8dc5d3e7cc099906a9db1f95985f94575a25e0cf872ed004b2f10efb"
+      ],
+      "ProjectVersion": 115,
+      "Compression": "proven-aes-cbc-raw-deflate",
+      "Covers": [
+        "preview.jpg",
+        "preview.png"
+      ],
+      "Header": "magic-u32-length-u32-table-i32-bias",
+      "Coverage": "contiguous-through-eof",
+      "MemberFlags": "block-count-boundaries-only",
+      "References": "known-relative-member-presence",
+      "MaxMetadataBytes": 1048576,
+      "MaxMetadataMembers": 64,
+      "MaxPixels": 16000000
+    }
+  ]
+}

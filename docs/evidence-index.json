@@ -1,0 +1,86 @@
+{
+  "kind": "sanitized-local-evidence-locators",
+  "base": "Original workspace root, outside this Git repository",
+  "records": [
+    {
+      "id": "R28-window",
+      "workspaceRelativePath": "local_trial_video_ready_r28_20261108/evidence/user-preview-closeout-r28.json",
+      "bytes": 21320,
+      "sha256": "524ce5f62dee40089170097a783e103bddb2af5e0751f83a1f2a75f4a97717c7",
+      "meaning": "本机402242窗口/人工确认/正常关闭",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "R28-desktop-tray",
+      "workspaceRelativePath": "local_trial_video_ready_r28_20261108/evidence/user-desktop-tray-closeout-r28.json",
+      "bytes": 15635,
+      "sha256": "11daa463ef0400044a128fc6db4c94aab3b4e4f93fa4b332b25a72070e0e3f62",
+      "meaning": "本机桌面/托盘用户反馈；停止原因controller-close",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "R29-manual-cover",
+      "workspaceRelativePath": "local_trial_video_cover_r29_20261108/evidence/user-cover-closeout-r29.json",
+      "bytes": 15807,
+      "sha256": "e5006312845f4fd45cc185985304d5b66829ced727770f0dbc95af698263437f",
+      "meaning": "两张实际截帧和替换；重开缺第二次GUI会话日志",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "R30-preimport-cover",
+      "workspaceRelativePath": "local_trial_video_import_cover_r30_20261108/evidence/user-import-cover-closeout-r30.json",
+      "bytes": 20243,
+      "sha256": "f1dd9a43f185e5c2222a4d09e0b0a4ff7cd25d92ca9291543d1db1b6aec0bd73",
+      "meaning": "三视频无缓存取帧；402242导入卡片与退出",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "R30-build",
+      "workspaceRelativePath": "local_trial_video_import_cover_r30_20261108/evidence/full-build-receipt-r30.json",
+      "bytes": 10367,
+      "sha256": "5bb83d85c736d506cb15d8bc7894d88406faf5efe75d774668d6e689b025c62b",
+      "meaning": "原版本完整构建成功；不等于全部旧功能在R30重测",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "R26-black-preview",
+      "workspaceRelativePath": "local_trial_video_blackframe_r27_20261108/evidence/black-preview-diagnosis-r27.json",
+      "bytes": 5460,
+      "sha256": "939e1502cc2aafc6ccd1c4b712c2404e42726868a4c836ce558fcd637e918f53",
+      "meaning": "保留R26两次真实黑屏",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "R27-offline-decode",
+      "workspaceRelativePath": "local_trial_video_blackframe_r27_20261108/evidence/offline-media-probe-r27.json",
+      "bytes": 5786,
+      "sha256": "8b6881585b25830b61273510e84aa80f2785701d830a7c13bcbfaf6bf02a6e5f",
+      "meaning": "只证明离线可解码，不证明旧引擎首帧",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "R24-retention",
+      "workspaceRelativePath": "local_trial_runtime_retention_r24_20261107/evidence/user-observation-closeout-r24.json",
+      "bytes": 35881,
+      "sha256": "11211f565fc654bd38b959d072fb7f3fdf3b970fcd3e5d95795ae75f5184bcc7",
+      "meaning": "真实运行副本回收",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "R23-multiple-wallpapers",
+      "workspaceRelativePath": "local_trial_multi_wallpaper_r23_20261107/evidence/stage1-user-closeout-r23.json",
+      "bytes": 100168,
+      "sha256": "f3586b48ed33da7b822cf28457b1437df2c6da9f6458c5dbd43b69269206bca6",
+      "meaning": "真实双壁纸完整使用",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "395741-logged-out",
+      "workspaceRelativePath": "local_delivery_independent_r24p1_20261108/evidence/nonmember-20261108/395741-user-closeout.json",
+      "bytes": 37329,
+      "sha256": "f710320c26b51cdd9e1c07677b32106b05c9d5419bbce919822242671770a825",
+      "meaning": "官方未登录新资源的本机实际结果，免费标签未知",
+      "rawFileUploaded": false
+    }
+  ]
+}

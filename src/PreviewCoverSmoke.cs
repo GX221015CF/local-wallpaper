@@ -1,0 +1,13 @@
+#if TEST_BUILD
+using System;using System.IO;using System.Linq;using System.Threading.Tasks;
+internal sealed partial class ControlWindow {
+ internal async Task RunPreviewCoverSmoke(){ImportOperation op=null;try{
+  PreviewFrameTarget target;string reason;Require(!TryPreviewTarget(out target,out reason),"No-preview guard");var item=library.Doc.Items.Single(x=>x.ResourceId=="28987");Require(item.RegisteredSha256==item.PreviewConfirmedSha256,"Use only already confirmed28987");string before=Common.Json.Serialize(library.Doc.Items.Select(x=>new{x.Id,x.RegisteredSha256,x.PreviewConfirmedSha256,x.DesktopConfirmedSha256}).ToArray());
+  SelectWallpaper(item);await StartMode("preview");await WaitOfflineState("preview");await Task.Delay(1300);Require(TryPreviewTarget(out target,out reason),"Preview proof missing: "+reason);SelectWallpaper(library.Doc.Items.First(x=>x.Id!=item.Id));PreviewFrameTarget afterSelect;Require(TryPreviewTarget(out afterSelect,out reason)&&afterSelect.ResourceSha256==item.RegisteredSha256&&selected.Id!=afterSelect.CatalogId,"Capture used current selection instead of active resource");
+  PreviewFrame.SetForegroundWindow(new IntPtr(target.Window));await Task.Delay(200);op=new ImportOperation(Write);var data=await op.Run("capture-frame",null,null,0,null,target);Require(SamePreview(target),"Preview changed during capture");var frame=Common.Obj(data["frame"]);string picture=Path.Combine(op.Folder,"payload",Common.S(frame,"image"));File.Copy(picture,Path.Combine(Common.Root,"evidence","captured-28987.jpg"));Common.SaveNew(Path.Combine(Common.Root,"evidence","capture-probe.json"),new{passed=true,frame=new{sha256=Common.S(frame,"imageSha256"),width=frame["width"],height=frame["height"],method=Common.S(frame,"captureMethod"),region=Common.S(frame,"region")},resourceSha256=target.ResourceSha256,run=target.Run,playerPid=target.PlayerPid,playerCreation=target.PlayerCreation,renderHwnd=target.Render,windowHwnd=target.Window,selectionDiffers=true,desktopMounted=false,method="TEST_BUILD own handler and bounded capture subprocess; not real user click"});
+  Require(before==Common.Json.Serialize(library.Doc.Items.Select(x=>new{x.Id,x.RegisteredSha256,x.PreviewConfirmedSha256,x.DesktopConfirmedSha256}).ToArray()),"Capture changed confirmations");
+ }catch(Exception ex){Common.SaveNew(Path.Combine(Common.Root,"evidence","capture-probe-failed.json"),new{error=ex.ToString()});}
+ {if(op!=null)await op.Stop();await StopManaged("preview-cover-one-probe-end");PreviewFrameTarget ignored;string why;Require(!TryPreviewTarget(out ignored,out why),"Stopped preview still enabled capture");Close();}
+ }
+}
+#endif

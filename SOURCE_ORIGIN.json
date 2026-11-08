@@ -1,0 +1,762 @@
+{
+  "baseVersion": "0.1.30-import-video-cover-internal-r30",
+  "scope": "R30 owned source extraction. Build orchestration and documentation consolidation only. No new feature release.",
+  "files": [
+    {
+      "path": "src/AppSettings.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/AppSettings.cs",
+      "bytes": 1010,
+      "sha256": "73d7120d895b488179235c32e498ecb83a217fada64ea53fca4f2d9039a1c257"
+    },
+    {
+      "path": "src/AudioUi.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/AudioUi.cs",
+      "bytes": 2442,
+      "sha256": "3c5a2d28de0b54249e855518d34e36f07fcff1569b6e05c364ad7fcae338be93"
+    },
+    {
+      "path": "src/CandidateChecks.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/CandidateChecks.cs",
+      "bytes": 7853,
+      "sha256": "4585d63b7bc4bc2e85f9591f8446913afea14054c9ea53791cbd6f72142e3ee5"
+    },
+    {
+      "path": "src/Common.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/Common.cs",
+      "bytes": 6339,
+      "sha256": "88d5faa8938b881757bf3ba49502272c705eb0f5c559ca417db871fbef25f9ef"
+    },
+    {
+      "path": "src/ContinuousSafety.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/ContinuousSafety.cs",
+      "bytes": 3100,
+      "sha256": "2c5360fdfb6ce2f8b1ecf412b71cf685dbafdb1c3d957eb97da9993fcd21e8fc"
+    },
+    {
+      "path": "src/ControlWindow.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/ControlWindow.cs",
+      "bytes": 23150,
+      "sha256": "a233beb7b300b4069414b863a95c800cd5fd402d840704dd82fe059bc1f26d5c"
+    },
+    {
+      "path": "src/CorePlaybackSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/CorePlaybackSmoke.cs",
+      "bytes": 12834,
+      "sha256": "09c96759e9e6c0ae5bed9550fad91d7bedd87454322bccbc3118dc3836203bdd"
+    },
+    {
+      "path": "src/Cover366Smoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/Cover366Smoke.cs",
+      "bytes": 7056,
+      "sha256": "227853daffae0eb49848e39fee220e1ef0378915e2d731a13a151a78eaf55689"
+    },
+    {
+      "path": "src/CoverCache.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/CoverCache.cs",
+      "bytes": 16247,
+      "sha256": "a04be06508d670c267dbafdaf48a8ba741641a50351d66f6a57c8f4080b9138c"
+    },
+    {
+      "path": "src/CoverCard.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/CoverCard.cs",
+      "bytes": 4295,
+      "sha256": "7e7a153c259e17b30b65efb42114d6009f77d5dd2685a9b7709119df069ab6ed"
+    },
+    {
+      "path": "src/CoverPathSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/CoverPathSmoke.cs",
+      "bytes": 7154,
+      "sha256": "9cc9cdbc758f7189cdc116b3f62c09b999ea9d2c73ccd9de28fc555706feda54"
+    },
+    {
+      "path": "src/CoverSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/CoverSmoke.cs",
+      "bytes": 10667,
+      "sha256": "504c624838db24920b8b2ec1d58bea6fcbef1e0d6339d14c890ff4f9f18d0cd8"
+    },
+    {
+      "path": "src/CwpPolicy.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/CwpPolicy.cs",
+      "bytes": 2336,
+      "sha256": "ef285a70f80aa66faaa7fc9f76afa5a9d944bf06c69e97230a08daf267eede3e"
+    },
+    {
+      "path": "src/DailyFlowSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DailyFlowSmoke.cs",
+      "bytes": 4472,
+      "sha256": "4c390d035920db58a61b7c42783077ad75d47a49e7d64ad3bfe2e36b5a5cda8d"
+    },
+    {
+      "path": "src/DailyFlowUi.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DailyFlowUi.cs",
+      "bytes": 7340,
+      "sha256": "0484f45df2a1b87528d7abf43ac4d6e46fc6842d5690bce932f254441ecce8e0"
+    },
+    {
+      "path": "src/DailyMetrics.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DailyMetrics.cs",
+      "bytes": 992,
+      "sha256": "a691a5a65301eb445f971f84969e125f5d3198d41531d3034587853e966b4617"
+    },
+    {
+      "path": "src/DailyPolishSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DailyPolishSmoke.cs",
+      "bytes": 4665,
+      "sha256": "9595589f205a2efaf715aad42c3b616f83756916402fa74a4616bee62ae31a94"
+    },
+    {
+      "path": "src/DataHomeSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DataHomeSmoke.cs",
+      "bytes": 13396,
+      "sha256": "5276c41e69156e6bcbd303ee81f95409e1464bbd58dce9da862e0ee1abdf0d30"
+    },
+    {
+      "path": "src/DataHomeUiSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DataHomeUiSmoke.cs",
+      "bytes": 2284,
+      "sha256": "2b3dff1f8bcf2e82b422763c47c809ba972ee3025c80dca88334ea5dec0b04f8"
+    },
+    {
+      "path": "src/DataLocation.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DataLocation.cs",
+      "bytes": 11976,
+      "sha256": "0522b1949ea3243fa23d72e8029ff867ce26dd927019a7606caee0a525f9c73b"
+    },
+    {
+      "path": "src/DataMigration.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DataMigration.cs",
+      "bytes": 16217,
+      "sha256": "262779496ea56f8e3bfb8f78196d2fc27c25078849291a4d2f390730a3c45307"
+    },
+    {
+      "path": "src/DiagnosticBundle.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DiagnosticBundle.cs",
+      "bytes": 18386,
+      "sha256": "8310235da397c70f480df4e7bfb7b854046c54473b8a564b0a9f6141dd2679a3"
+    },
+    {
+      "path": "src/DiagnosticSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DiagnosticSmoke.cs",
+      "bytes": 8528,
+      "sha256": "86cf2a10caee8bcc015c1dfec0957be19a4ac9e364ff09b021b740fc266bf51a"
+    },
+    {
+      "path": "src/DiscoverySmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DiscoverySmoke.cs",
+      "bytes": 5869,
+      "sha256": "eefec548582d10e880c64994774bb055c9abcf58086e6d6ade72ebecf1b08b2e"
+    },
+    {
+      "path": "src/DiscoveryUi.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/DiscoveryUi.cs",
+      "bytes": 9347,
+      "sha256": "c5c8c8dee9d1681d552121c39ed1a5ab09cabe39d035ede0fce822e35f83b6f7"
+    },
+    {
+      "path": "src/EmptyStatePresentation.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/EmptyStatePresentation.cs",
+      "bytes": 1909,
+      "sha256": "1dcfef04bdbd16df0be3f5857bef6618bd3bb0fcc3535bc16268a917df09a141"
+    },
+    {
+      "path": "src/EmptyStateSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/EmptyStateSmoke.cs",
+      "bytes": 2643,
+      "sha256": "50789aa125affdb62d2947f84350dc6f2e782f24e2ee58201f4723ff9bb0b111"
+    },
+    {
+      "path": "src/EmptyStateUi.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/EmptyStateUi.cs",
+      "bytes": 1229,
+      "sha256": "a680a3798f8d73a0f323f4536837f9b2cef2006e5804a21d2580f0c9304de69f"
+    },
+    {
+      "path": "src/Entry.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/Entry.cs",
+      "bytes": 5964,
+      "sha256": "4f81be81a78f2c89bab8ea21fb28f7101a6b65ec1fc53e6a7c3235c32b166fb1"
+    },
+    {
+      "path": "src/FaultController.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/FaultController.cs",
+      "bytes": 8417,
+      "sha256": "f568616d177c4030392e544f41c403e75552cdb54603d180eff96b0ca173d39b"
+    },
+    {
+      "path": "src/FaultHandoffUi.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/FaultHandoffUi.cs",
+      "bytes": 10759,
+      "sha256": "6f38f20163b47f5ae692947ce35b4c786717cdbec42aba67d461eea47f751c8e"
+    },
+    {
+      "path": "src/FaultRecord.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/FaultRecord.cs",
+      "bytes": 8148,
+      "sha256": "fb0da415b6baa798a6872746f1a0038c9e7ce0bec9bedcfeba05df9899f5fa79"
+    },
+    {
+      "path": "src/FirstUseSetup.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/FirstUseSetup.cs",
+      "bytes": 10559,
+      "sha256": "3fbf3e199a7d3ac6439e81dc049793f89351d1abc80598f1911c3faa11272191"
+    },
+    {
+      "path": "src/HeadlessDiagnosticSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/HeadlessDiagnosticSmoke.cs",
+      "bytes": 6278,
+      "sha256": "52e495911ef6769c3b5a5a0d987fcba5bb01fc001e0a9feb511225612b503cd4"
+    },
+    {
+      "path": "src/HostFailureReplaySmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/HostFailureReplaySmoke.cs",
+      "bytes": 1741,
+      "sha256": "ffd6bc06985895dce7ae6797fa0c68045953535258b432e3b436e44a9195b28e"
+    },
+    {
+      "path": "src/HostResources.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/HostResources.cs",
+      "bytes": 7726,
+      "sha256": "fd58cffe84a0defb4f4de2a48063685a0785042312f51b7a2f822a8fb3fe44ab"
+    },
+    {
+      "path": "src/ImportAnalysisState.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/ImportAnalysisState.cs",
+      "bytes": 107,
+      "sha256": "fc24655f745a806867b8b0978400d5b0a8354e717d4b68b533959664e9b1e45e"
+    },
+    {
+      "path": "src/ImportDialog.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/ImportDialog.cs",
+      "bytes": 18871,
+      "sha256": "87b1a7b65d8c912f07974d6267b6a25c7a096606ff3d2f56db278edeeaf17230"
+    },
+    {
+      "path": "src/ImportFlowSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/ImportFlowSmoke.cs",
+      "bytes": 17123,
+      "sha256": "11f39eecb87c7a416af1d640ff6e6e2eea2cde4a8d73e24dcd72ee1293c167c2"
+    },
+    {
+      "path": "src/ImportRegistration.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/ImportRegistration.cs",
+      "bytes": 1327,
+      "sha256": "2ff8c504560df6314d30877ae7a3d6f8a06476084a1de6ecb38af47a95ee72ed"
+    },
+    {
+      "path": "src/ImportSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/ImportSmoke.cs",
+      "bytes": 10324,
+      "sha256": "727da4f3d9799ca2995f2719e33f51b91c60c8118917cc4cf7fb6664d7a282f4"
+    },
+    {
+      "path": "src/IncrementalLines.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/IncrementalLines.cs",
+      "bytes": 3434,
+      "sha256": "df66803b797d0f0018481c4153264e768841254cc37537dc6a837228f25e599e"
+    },
+    {
+      "path": "src/JobFence.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/JobFence.cs",
+      "bytes": 2718,
+      "sha256": "73a9f02f2733ca5b72dc8dd3029eae562377853568dbd5c5e8bb8dc83debab9b"
+    },
+    {
+      "path": "src/LeaseWorker.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/LeaseWorker.cs",
+      "bytes": 19130,
+      "sha256": "70a0eb23fe4494fa69cf81c835f5bf0a9fdbd93b8f172eaa3b8a4934e6598f0f"
+    },
+    {
+      "path": "src/Lifecycle.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/Lifecycle.cs",
+      "bytes": 19876,
+      "sha256": "3a198f02fdd6da1592ec56aeb1a25deb9cc515e8b4094ea03b688ebf46b1e492"
+    },
+    {
+      "path": "src/LocalImport.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/LocalImport.cs",
+      "bytes": 20993,
+      "sha256": "be07b65b48330696e74663ab1bfaeee0a3416cfeb36a92fb587529180cafb782"
+    },
+    {
+      "path": "src/LocalTool.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/LocalTool.cs",
+      "bytes": 6573,
+      "sha256": "3a91461ca6f6e7a40cb460cb66dfff1656883c5d9a628ae1efaff0ee3f77f6a9"
+    },
+    {
+      "path": "src/LoginRestore.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/LoginRestore.cs",
+      "bytes": 6726,
+      "sha256": "e0d3cf093891e2c4491f38a7b7ce074df28cde4152ea2b20e144b36915fb274a"
+    },
+    {
+      "path": "src/ManagedCatalog.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/ManagedCatalog.cs",
+      "bytes": 6874,
+      "sha256": "ec10c5b16c03722009e77573e7c2ec4af65c98bd19263664b63f45740b41ca3e"
+    },
+    {
+      "path": "src/MovieSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/MovieSmoke.cs",
+      "bytes": 3823,
+      "sha256": "ca53069e9c853f206fea42d7287928a482281960457a198b3fdafb3362627c92"
+    },
+    {
+      "path": "src/NameDiagnosticsSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/NameDiagnosticsSmoke.cs",
+      "bytes": 11683,
+      "sha256": "9568ce5355166ec1bd579a059675748413dd1dad705954a24a7daa5fdb6abb3d"
+    },
+    {
+      "path": "src/NameFlowSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/NameFlowSmoke.cs",
+      "bytes": 5805,
+      "sha256": "87b6a4b4028b6fde6ca12e8221f87c7b3ad2f8e74f26cccd71954cf05c4dee1d"
+    },
+    {
+      "path": "src/NameFlowUi.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/NameFlowUi.cs",
+      "bytes": 6500,
+      "sha256": "e5c6aa58d7a8b0f864667994d4f0795d405c110a12021241807e010dd9f3c8bc"
+    },
+    {
+      "path": "src/NameSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/NameSmoke.cs",
+      "bytes": 7375,
+      "sha256": "5dab87100dec7c8b9f00223314a3d3573a65621f7515da0057c64ed0a628c571"
+    },
+    {
+      "path": "src/NameUpdates.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/NameUpdates.cs",
+      "bytes": 860,
+      "sha256": "4f9f2240c72eb58a8816ff2727ceb878a6c044a5e1a9a169c628c74560c50b4f"
+    },
+    {
+      "path": "src/OfficialNames.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/OfficialNames.cs",
+      "bytes": 14880,
+      "sha256": "71ce77f71a8806bc364b24d07bd79c34d5d81fddac7c3fd33dfe005302daf54c"
+    },
+    {
+      "path": "src/OfficialNameStore.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/OfficialNameStore.cs",
+      "bytes": 6617,
+      "sha256": "c5241f127772d9129918747511112d38890a756b3fd1e8c512c68b3213864a90"
+    },
+    {
+      "path": "src/OfflineTest.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/OfflineTest.cs",
+      "bytes": 2028,
+      "sha256": "e38250e1d52bf3fb63475f2723c6a0bbee587c8b08eddcd2565c920d0e470c63"
+    },
+    {
+      "path": "src/PackageAnalysis.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PackageAnalysis.cs",
+      "bytes": 17002,
+      "sha256": "2ed1dc7bf4c089845e931bb51288812ac50df623362326a24df16c4992f22d9f"
+    },
+    {
+      "path": "src/PlaybackFailure.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PlaybackFailure.cs",
+      "bytes": 1483,
+      "sha256": "0ee0cb75bea7b47edda3acd988d5793e8e089dcc0db06c620f0781f03ce3bb83"
+    },
+    {
+      "path": "src/PlaybackPreparation.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PlaybackPreparation.cs",
+      "bytes": 6617,
+      "sha256": "38820c75e98e14225ac006f92c470a896a7bef1a3c34f09d936615971bfa18e1"
+    },
+    {
+      "path": "src/PlaybackSwitch.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PlaybackSwitch.cs",
+      "bytes": 1955,
+      "sha256": "efa961ee78a2e5f5186a8d6d386dc7e6b8724765a86e2c539ca62d2230c636e4"
+    },
+    {
+      "path": "src/PolishedUi.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PolishedUi.cs",
+      "bytes": 13903,
+      "sha256": "f281a85527353bbff591e95be2950286573c67dd90789204f1b85651577cd1a3"
+    },
+    {
+      "path": "src/PreviewCandidateSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PreviewCandidateSmoke.cs",
+      "bytes": 3373,
+      "sha256": "95434ff7a054d6d33bf9886eee38d935bfa2e0f6ed9b719a081e758a7f6cf981"
+    },
+    {
+      "path": "src/PreviewConfirmation.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PreviewConfirmation.cs",
+      "bytes": 6031,
+      "sha256": "2090bfef656d0cbeda3348b34d62b33074020875f32e948cf8c73a0218c9f60c"
+    },
+    {
+      "path": "src/PreviewControlsSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PreviewControlsSmoke.cs",
+      "bytes": 5253,
+      "sha256": "74bbf8e17a4f2a92891f47a9f6e9c5474d61922fa8d8ccad79ac648d5834e6d7"
+    },
+    {
+      "path": "src/PreviewCovers.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PreviewCovers.cs",
+      "bytes": 7502,
+      "sha256": "92c2b64d169a0d5e7e076433f9f1c1737e623cbf43ffd5355dd2d82ba2e14f46"
+    },
+    {
+      "path": "src/PreviewCoverSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PreviewCoverSmoke.cs",
+      "bytes": 2650,
+      "sha256": "8c75639148b97febce34336bbf456ff482ea0fb5f05c040afca090a695e24674"
+    },
+    {
+      "path": "src/PreviewCoverStoreSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PreviewCoverStoreSmoke.cs",
+      "bytes": 11019,
+      "sha256": "18e81b6eb9bbaa16dcc7e4b4472666acc865a75ebc6ad55b84c802f5b163fc13"
+    },
+    {
+      "path": "src/PreviewCoverUi.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PreviewCoverUi.cs",
+      "bytes": 8240,
+      "sha256": "a5abfe667d7bbcfb95646e8a3a27740978b408267c511bfc5484fa3ba6a6cd12"
+    },
+    {
+      "path": "src/PreviewFrame.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/PreviewFrame.cs",
+      "bytes": 8236,
+      "sha256": "44595d102ee8aeb46209847c67e431a300a16f2f6f704fd2f1da2a9e111c51a9"
+    },
+    {
+      "path": "src/ProcessProof.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/ProcessProof.cs",
+      "bytes": 3721,
+      "sha256": "ea1076838e5e6d0b834ef5238edcf60075af38f75a275ff54d4a3ab67dc91ac0"
+    },
+    {
+      "path": "src/RemovalUi.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/RemovalUi.cs",
+      "bytes": 2326,
+      "sha256": "5ca2d6e5986c76b2e87c97d625d94c63ad434e7f1f6eb652a2030c9ae014a716"
+    },
+    {
+      "path": "src/ResourceDiscovery.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/ResourceDiscovery.cs",
+      "bytes": 12301,
+      "sha256": "afa5d48585f2d108a06d6e1fd1fb9cd892cee8d7338ca9b7cce8ac16ac96bb6c"
+    },
+    {
+      "path": "src/RuntimeDelivery.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/RuntimeDelivery.cs",
+      "bytes": 2279,
+      "sha256": "902e88cc69aad1e0bddee3ce88762ed3691a4db72cee247b772c5c6d38102a41"
+    },
+    {
+      "path": "src/RuntimeInputs.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/RuntimeInputs.cs",
+      "bytes": 13759,
+      "sha256": "3bb3aae5c41d8103fb7110ca6c01b4647639a1b8b88e43b65e7efa16d634c5e3"
+    },
+    {
+      "path": "src/RuntimePresentation.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/RuntimePresentation.cs",
+      "bytes": 1970,
+      "sha256": "e2432ebd9b5aa8d634300f4c7201550549e0ee0dffd54774f8965bdfd39760c1"
+    },
+    {
+      "path": "src/RuntimeProvisioning.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/RuntimeProvisioning.cs",
+      "bytes": 10707,
+      "sha256": "c9f76ab4c4eddf171d994b7bec01bbaae2c09ce0d89ae77a284a57dcad3c38b1"
+    },
+    {
+      "path": "src/RuntimeProvisioningSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/RuntimeProvisioningSmoke.cs",
+      "bytes": 8317,
+      "sha256": "84503c855e34829a090473c95e94ef1b1e64edc23cebecc3dbbd87343bf45f50"
+    },
+    {
+      "path": "src/SingleInstance.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/SingleInstance.cs",
+      "bytes": 4164,
+      "sha256": "ed342c7c6200f02dbed53b3ae58b5897200cf4f278da93edc1b060e4e4bf12f9"
+    },
+    {
+      "path": "src/SourceLocation.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/SourceLocation.cs",
+      "bytes": 8493,
+      "sha256": "d4bebd1f2036827363031e646c2738e17b9ebffb492a1395c8e4ade5c3c18f2b"
+    },
+    {
+      "path": "src/SourceLocationSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/SourceLocationSmoke.cs",
+      "bytes": 8471,
+      "sha256": "9c3d527165c7442f2fd3ed24632205cc32a55c3ebe74e4fce3b453435f4eda08"
+    },
+    {
+      "path": "src/SourceRecoverySmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/SourceRecoverySmoke.cs",
+      "bytes": 1627,
+      "sha256": "e81510c9a7f333b05537e19710b3737fb890d9a72b5a8866e13496187673f2e5"
+    },
+    {
+      "path": "src/StartupDiagnosticSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/StartupDiagnosticSmoke.cs",
+      "bytes": 7884,
+      "sha256": "1af30fc53e994892f4257e90dbc2ea9796f317dfd29e9bb2c29b4b54d0a369e1"
+    },
+    {
+      "path": "src/StartupHandoff.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/StartupHandoff.cs",
+      "bytes": 6714,
+      "sha256": "6a52596f1ec6dffaa6148f9d3824a8035b7afce77ffc1052114abbeed835661c"
+    },
+    {
+      "path": "src/SubmitSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/SubmitSmoke.cs",
+      "bytes": 3577,
+      "sha256": "0f3af035e51f9466cb13d2785847285d51634a09ad8991c404d9df6acda20710"
+    },
+    {
+      "path": "src/TestScenario.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/TestScenario.cs",
+      "bytes": 3877,
+      "sha256": "f7a743604a90fb799b7c86f3673a21cbde451bbe7ef84d9350a6ba417f7f560d"
+    },
+    {
+      "path": "src/Theme.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/Theme.cs",
+      "bytes": 3536,
+      "sha256": "ffc232a0b5520070bbb1b06447b31068ef4492ef96156ff4451c762244037acf"
+    },
+    {
+      "path": "src/TrayControl.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/TrayControl.cs",
+      "bytes": 1357,
+      "sha256": "5afb9b1996bc6f209ef872acb7327fa9a536ec7a8f55f5e21d7b553ee13c7c69"
+    },
+    {
+      "path": "src/TrayUi.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/TrayUi.cs",
+      "bytes": 2949,
+      "sha256": "fa590a197ddd1d827dca389847458e1b88ee4816608318ac52d684e0b25cd42d"
+    },
+    {
+      "path": "src/V3Package.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/V3Package.cs",
+      "bytes": 12284,
+      "sha256": "8787dccb0aae6314abd5d2f1f1293789d2d89537ccd5445ce8134b6a1d29f66e"
+    },
+    {
+      "path": "src/VersionStore.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/VersionStore.cs",
+      "bytes": 8979,
+      "sha256": "54b5ed4c68b46d628fbf3656c009744d2c36bb65d44c995572c3412213809101"
+    },
+    {
+      "path": "src/VideoCovers.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/VideoCovers.cs",
+      "bytes": 7521,
+      "sha256": "e3a1a4a9d8a40fe64dea207beae625cc2a630dbc560a2bdd8eadac0420f68b28"
+    },
+    {
+      "path": "src/VideoFrameDecoder.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/VideoFrameDecoder.cs",
+      "bytes": 8597,
+      "sha256": "0aef1c270af1dce112349761585e88eb87887b12a24fef3640c4e654cf5e4297"
+    },
+    {
+      "path": "src/VideoPackage.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/VideoPackage.cs",
+      "bytes": 10506,
+      "sha256": "b8d6b67df14eb2ed61c3c30086810547899f861ee92f2322d547467b2284e961"
+    },
+    {
+      "path": "src/WallpaperLibrary.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/WallpaperLibrary.cs",
+      "bytes": 12992,
+      "sha256": "5b2479633ceb09311f30baf55d982d1fa1811d1132b4781120a1e3c4ebed0bc1"
+    },
+    {
+      "path": "src/WorkerHeartbeat.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/WorkerHeartbeat.cs",
+      "bytes": 929,
+      "sha256": "517d9494e0e8c047e730a8b0168e52b35d9b434b928b2166d7193549a8125cb1"
+    },
+    {
+      "path": "src/WorkflowUiSmoke.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/src/WorkflowUiSmoke.cs",
+      "bytes": 14373,
+      "sha256": "0ebe81c44bc95a34202f09dc9df97503ae4b581617bb2768a42818ef38436194"
+    },
+    {
+      "path": "host_src/DesktopHost.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/host_src/DesktopHost.cs",
+      "bytes": 7147,
+      "sha256": "b2d2b292943f0c41724735391f96c02e2fa0b0ef83af0a0c160bff82f842b76d"
+    },
+    {
+      "path": "host_src/DesktopLease.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/host_src/DesktopLease.cs",
+      "bytes": 7516,
+      "sha256": "39c95b68d1ef94ce6ff808961a94a4ca947f5e33893dce7500facab5a38777e4"
+    },
+    {
+      "path": "host_src/EngineCore.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/host_src/EngineCore.cs",
+      "bytes": 10314,
+      "sha256": "f564502f6c292ec7ffcb1d2a482c16d8e203ad87321891923d849dfa768d80c9"
+    },
+    {
+      "path": "host_src/HostShutdown.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/host_src/HostShutdown.cs",
+      "bytes": 896,
+      "sha256": "923e796fee0b95240420813cc2babefcf1a9cc7c30b807d71d7d34bee61cc072"
+    },
+    {
+      "path": "host_src/PreviewToolbar.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/host_src/PreviewToolbar.cs",
+      "bytes": 6527,
+      "sha256": "773491a0b2f6f54402a7cd8e9e54e8c4d354ef7bb95e971cb0103f46a37fd406"
+    },
+    {
+      "path": "shared/AppVisuals.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/shared/AppVisuals.cs",
+      "bytes": 334,
+      "sha256": "5a9a570bd299d46b1eed9da811efbf5add0055c6e9607402160df952e48ac129"
+    },
+    {
+      "path": "shared/DailyLog.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/shared/DailyLog.cs",
+      "bytes": 3573,
+      "sha256": "fb02c818160d85f40fa1778a600d970382d734e51a80c9f35c8e616c8540bc70"
+    },
+    {
+      "path": "rules/runtime-components.json",
+      "origin": "local_trial_video_import_cover_r30_20261108/rules/runtime-components.json",
+      "bytes": 3189,
+      "sha256": "3e773a7cde1ef773ad0730901251fe390462b22f4bf35a927acd2e8675f08b96"
+    },
+    {
+      "path": "rules/v3-structure-families.json",
+      "origin": "local_trial_video_import_cover_r30_20261108/rules/v3-structure-families.json",
+      "bytes": 2361,
+      "sha256": "7fd1ae08cbf7dcbb004ae7b42b1cea9544a6532618a6bc3d176aa306c8bf8410"
+    },
+    {
+      "path": "tests/CoverSnapshotRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/CoverSnapshotRegression.cs",
+      "bytes": 8970,
+      "sha256": "ff22db11319213b25ceb3d9bc93950f7f03ce18d20d7a39102f80b42ba1dc318"
+    },
+    {
+      "path": "tests/FirstUseRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/FirstUseRegression.cs",
+      "bytes": 12883,
+      "sha256": "e0494431143fc951fe222931f1d6b342bf4024e15a87cb17fe6eed0c9675f13e"
+    },
+    {
+      "path": "tests/HostContractRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/HostContractRegression.cs",
+      "bytes": 2080,
+      "sha256": "c4fd35fcbb672bdbd677a922e7db1677ffdce9253727505b3c1187b10224c58f"
+    },
+    {
+      "path": "tests/HostResourcesRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/HostResourcesRegression.cs",
+      "bytes": 7202,
+      "sha256": "d3cceb8428fd340e9f3760040b4dcfe7b86bbd6160b80e04a2b648de6a8dde45"
+    },
+    {
+      "path": "tests/HostStagePathRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/HostStagePathRegression.cs",
+      "bytes": 6581,
+      "sha256": "17ea6098cc09059c3bc595e9343c84a8d09725e7eff62f640d3e29033682dcce"
+    },
+    {
+      "path": "tests/MultiWallpaperRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/MultiWallpaperRegression.cs",
+      "bytes": 13974,
+      "sha256": "fb6cb0d039bf8b4ce0bb3aa147a928a67301e50a1220a4463c5afeb7962586be"
+    },
+    {
+      "path": "tests/MultiWiring.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/MultiWiring.cs",
+      "bytes": 3529,
+      "sha256": "815f77d1fd471271b46b465ecf1d5ce505437f2ce32b03b74d74e5d955a847ac"
+    },
+    {
+      "path": "tests/PublishedCoverCheck.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/PublishedCoverCheck.cs",
+      "bytes": 5676,
+      "sha256": "0d6b89843a00f786737862ca00bf40f0c0c990e9258e2e866da9bb74818573a9"
+    },
+    {
+      "path": "tests/PublishedVideoCoverR30.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/PublishedVideoCoverR30.cs",
+      "bytes": 6119,
+      "sha256": "0feb2fffb107077414d630d5ae5826daa8a4d7fb92e37e8ee53688445d5b19c5"
+    },
+    {
+      "path": "tests/ReleaseHostBindingCheck.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/ReleaseHostBindingCheck.cs",
+      "bytes": 4150,
+      "sha256": "bd758329cfe4522771c45a259e57aafdf8327eeb77a84af7d8150b644b5bd27a"
+    },
+    {
+      "path": "tests/RetentionWiring.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/RetentionWiring.cs",
+      "bytes": 3834,
+      "sha256": "c9d2bf50a161065ee9137dd633a8ec8cf1c47c610f74a2fbf70c848b8054e107"
+    },
+    {
+      "path": "tests/RuntimeRetentionRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/RuntimeRetentionRegression.cs",
+      "bytes": 14221,
+      "sha256": "2d77cfed89ae1e2fbe82822132d0581e33c39bbef79958b061d4e1d6ed89be73"
+    },
+    {
+      "path": "tests/RuntimeTextRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/RuntimeTextRegression.cs",
+      "bytes": 4088,
+      "sha256": "fb09b3a095211f1abbebee89d770ae9f4c5e92dec8326668e76e6f9e994a3d67"
+    },
+    {
+      "path": "tests/RuntimeTextWiring.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/RuntimeTextWiring.cs",
+      "bytes": 3062,
+      "sha256": "b2ea905839f278640a103a026d9c211f353182807e1f33779b0feeaad9c01458"
+    },
+    {
+      "path": "tests/ShutdownRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/ShutdownRegression.cs",
+      "bytes": 7653,
+      "sha256": "6ad26e9c87cab8b71eba7895fc9a3c07d5ee622e04cb0883e63c6fce482677d9"
+    },
+    {
+      "path": "tests/VideoBindingRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/VideoBindingRegression.cs",
+      "bytes": 5658,
+      "sha256": "b5d45e7be48432be11f3f70346721645b4fc9da8d77b624f0b5ba10ca1fc9be3"
+    },
+    {
+      "path": "tests/VideoImportCoverRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/VideoImportCoverRegression.cs",
+      "bytes": 10863,
+      "sha256": "9baa79b8d5028b855bb5b4b5fc24903caaf5549271cdcd4de7fc44c42456641a"
+    },
+    {
+      "path": "tests/VideoTrayRegression.cs",
+      "origin": "local_trial_video_import_cover_r30_20261108/tests/VideoTrayRegression.cs",
+      "bytes": 10438,
+      "sha256": "dab053d9d7d8783614dea304f5afef529470510079075de2a223c941fec69b8b"
+    },
+    {
+      "path": "assets/LocalWallpaper.ico",
+      "origin": "local_trial_video_import_cover_r30_20261108/assets/LocalWallpaper.ico",
+      "bytes": 35182,
+      "sha256": "84ed5e45c2a97f2c1dd704cd578d777e1fc4d40b62d62df7d58947b23e7257df"
+    }
+  ]
+}

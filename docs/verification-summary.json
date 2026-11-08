@@ -1,0 +1,66 @@
+{
+  "sourceBaseline": "R30",
+  "functionalVersion": "0.1.30-import-video-cover-internal-r30",
+  "observations": [
+    {
+      "version": "R28",
+      "resource": "402242",
+      "passed": [
+        "window-preview",
+        "desktop-display",
+        "hide-and-tray-user-feedback",
+        "normal-close-and-restore"
+      ],
+      "limits": [
+        "tray visibility from user feedback",
+        "no separate tray-stop log; controller-close recorded"
+      ]
+    },
+    {
+      "version": "R29",
+      "resource": "402242",
+      "passed": [
+        "two-distinct-real-snapshots",
+        "replacement",
+        "card-user-feedback"
+      ],
+      "limits": [
+        "reopen normal from user feedback; only one GUI session recorded"
+      ]
+    },
+    {
+      "version": "R30",
+      "resources": [
+        "402242",
+        "398417",
+        "403178"
+      ],
+      "passed": [
+        "three-uncached-system-video-frames",
+        "preimport-list-user-feedback",
+        "402242-explicit-import-and-card",
+        "normal-exit"
+      ],
+      "limits": [
+        "no playback or desktop rerun in R30"
+      ]
+    }
+  ],
+  "internalTests": {
+    "R30ActualHandlerAssertions": 43,
+    "R30IndependentProcessAssertions": 5,
+    "publishedAssemblyRealFrameResources": 3
+  },
+  "package": {
+    "bytes": 1548592,
+    "sha256": "68342dd7051681ecd1deac999350cb421ca15daa6440cc7563dac212ea67a33b",
+    "binaryUploaded": false
+  },
+  "externalConditions": {
+    "otherWindowsTested": false,
+    "otherWindowsRequiredAsGate": false,
+    "thirdPartyUsageTermsVerified": false,
+    "thirdPartyBinaryIncluded": false
+  },
+  "privacy": "No store IDs, user absolute paths, process IDs, raw logs, screenshots or wallpaper bytes included."
+}

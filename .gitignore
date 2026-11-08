@@ -1,0 +1,40 @@
+# Build and local evidence
+/artifacts/
+/build/
+/evidence/
+/offline-package/
+/tests/isolation/
+/data/
+/library/
+/logs/
+/sessions/
+/observe*/
+__pycache__/
+*.py[cod]
+*.tmp
+*.partial
+*.bak
+# Personal data and local bindings
+.env
+.env.*
+*credentials*
+*private-key*
+data-location.json
+runtime-location.json
+source-location.json
+settings.json
+catalog.json
+store.json
+deployment.json
+# Third-party binaries, release outputs and wallpaper media
+*.exe
+*.dll
+*.resc
+*.zip
+*.7z
+*.cwp
+*.mp4
+*.mp3
+*.jpg
+*.jpeg
+*.pdb

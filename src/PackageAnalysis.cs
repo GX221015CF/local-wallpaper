@@ -1,0 +1,78 @@
+﻿using System;using System.IO;using System.Text;using System.Linq;using System.Drawing;using System.Drawing.Imaging;using System.Collections;using System.Collections.Generic;using System.Diagnostics;using System.Security.Cryptography;
+internal sealed class FamilyRule {
+ public string Id{get;set;}public string Parser{get;set;}public string Magic{get;set;}public string Header{get;set;}public string Coverage{get;set;}public string MemberFlags{get;set;}public string References{get;set;}public int MaxMetadataBytes{get;set;}public int MaxMetadataMembers{get;set;}public int MaxPixels{get;set;}public string Layout{get;set;}public string Encoding{get;set;}public string Compression{get;set;}public string ProjectType{get;set;}public int ProjectVersion{get;set;}public string Audio{get;set;}public string[] Required{get;set;}public string[] Covers{get;set;}public int MaxTable{get;set;}public int MaxImage{get;set;}public int MaxMembers{get;set;}public int MaxSourceMiB{get;set;}public string WindowPolicy{get;set;}public string[] EvidenceHashes{get;set;}
+}
+internal sealed class FamilyRules {public int SchemaVersion{get;set;}public string Version{get;set;}public FamilyRule[] Families{get;set;}}
+internal sealed class AnalysisReport {
+ public int SchemaVersion{get;set;}public string Source{get;set;}public string SourceSignature{get;set;}public long Bytes{get;set;}public string Sha256{get;set;}public string Magic{get;set;}public uint DeclaredBytes{get;set;}public uint TableBytes{get;set;}public int Bias{get;set;}public string HeaderHex{get;set;}public string RuleVersion{get;set;}public string RuleFingerprint{get;set;}public string Family{get;set;}public string Variant{get;set;}public string Reason{get;set;}public bool StructureRecognized{get;set;}public bool FileStable{get;set;}public bool ContainerValidated{get;set;}public string[] Checks{get;set;}public string[] Dependencies{get;set;}public string DependencyScope{get;set;}public V3Inspection Structure{get;set;}public string CoverRelative{get;set;}public string CoverSha256{get;set;}public string CoverMember{get;set;}public string CoverMemberSha256{get;set;}public string CoverReason{get;set;}public bool HistoricalExactAcceptance{get;set;}public bool WindowAttemptAllowed{get;set;}public string Capability{get;set;}public string AnalyzedAt{get;set;}public bool CacheHit{get;set;}public bool PrivateSaved{get;set;}public string CatalogId{get;set;}public bool WindowConfirmed{get;set;}public bool DesktopVerified{get;set;}
+}
+internal static class PackageAnalysis {
+ internal const string LegacyMovieHash="bc91c36fa341f8327b1301e9b063a53a0774eab5d9659fe9dca9f4a778e761c1";
+ internal const string ConfirmedMovieHash="4bae488b8dc5d3e7cc099906a9db1f95985f94575a25e0cf872ed004b2f10efb";
+ internal static string RulesPath=Path.Combine(Common.AppRoot,"rules","v3-structure-families.json");
+ internal static string Digest(byte[] data){using(var h=SHA256.Create())return BitConverter.ToString(h.ComputeHash(data)).Replace("-","").ToLowerInvariant();}
+ internal static bool HistoricalHash(string hash){return hash==LegacyMovieHash||hash==ConfirmedMovieHash;}
+ internal static bool HashText(string value){return value!=null&&value.Length==64&&value.All(Uri.IsHexDigit);}
+ internal static FamilyRules LoadRules(out string fingerprint){
+  if(!File.Exists(RulesPath)||new FileInfo(RulesPath).Length>65536)throw new InvalidDataException("结构规则缺失或超过64KiB预算");
+  byte[] bytes=File.ReadAllBytes(RulesPath);fingerprint=Digest(bytes);FamilyRules rules;
+  try{rules=Common.Json.Deserialize<FamilyRules>(Encoding.UTF8.GetString(bytes));}catch{throw new InvalidDataException("结构规则JSON损坏");}
+  if(rules==null||rules.SchemaVersion!=1||rules.Version!="1.0.0"||rules.Families==null||rules.Families.Length==0||rules.Families.Length>8)throw new InvalidDataException("规则模式或版本未支持");
+  var ids=new HashSet<string>();var variants=new HashSet<string>();
+  foreach(var r in rules.Families){
+   if(r==null||String.IsNullOrEmpty(r.Id)||!ids.Add(r.Id)||!variants.Add(r.Audio)||!new[]{"absent","present"}.Contains(r.Audio))throw new InvalidDataException("结构规则重复、冲突或音频条件未支持");
+   if(r.Parser!="cwp-v3-directory-519000-v1"||r.Magic!="0x03505743"||r.Layout!="offset-decoded-stored-blocks-boundaries-utf8"||r.Encoding!="utf8-relative-no-dot-segments"||r.Compression!="proven-aes-cbc-raw-deflate"||r.ProjectType!="movie"||r.ProjectVersion!=115||r.WindowPolicy!="existing-movie115-window-attempt")throw new InvalidDataException("规则要求未实现的解析器、项目或播放策略");
+   if(r.Header!="magic-u32-length-u32-table-i32-bias"||r.Coverage!="contiguous-through-eof"||r.MemberFlags!="block-count-boundaries-only"||r.References!="known-relative-member-presence"||r.MaxMetadataBytes!=1048576||r.MaxMetadataMembers!=64||r.MaxPixels!=16000000)throw new InvalidDataException("规则头部、标志、引用策略或元数据预算不符合已实现契约");
+   if(r.MaxTable<1||r.MaxTable>1048576||r.MaxImage<1||r.MaxImage>8388608||r.MaxMembers<1||r.MaxMembers>20480||r.MaxSourceMiB<1||r.MaxSourceMiB>256)throw new InvalidDataException("规则解析预算超出程序硬限制");
+   if(r.Required==null||!r.Required.OrderBy(x=>x).SequenceEqual(new[]{"project.json","scene.json"}.OrderBy(x=>x))||r.Covers==null||!r.Covers.OrderBy(x=>x).SequenceEqual(new[]{"preview.jpg","preview.png"}.OrderBy(x=>x)))throw new InvalidDataException("规则必要成员或封面位置不符合已实现契约");
+   if(r.EvidenceHashes==null||r.EvidenceHashes.Length==0||r.EvidenceHashes.Any(x=>!HashText(x)))throw new InvalidDataException("规则缺少有效样本证据指纹");
+  }return rules;
+ }
+ internal static string Fingerprint(){string hash;LoadRules(out hash);return hash;}
+ internal static string RuleStamp(){try{if(!File.Exists(RulesPath))return "invalid-missing";if(new FileInfo(RulesPath).Length>65536)return "invalid-too-large";return Digest(File.ReadAllBytes(RulesPath));}catch{return "invalid-unreadable";}}
+ internal static string CoverPath(AnalysisReport r){return r.CoverRelative==null?null:Path.Combine(Common.Root,r.CoverRelative.Replace('/',Path.DirectorySeparatorChar));}
+ static bool CoverValid(AnalysisReport r){string p=CoverPath(r);return p==null||LocalImport.Under(p,Path.Combine(Common.Root,"data","analysis-covers"))&&File.Exists(p)&&new FileInfo(p).Length<=8388608&&Common.Hash(p)==r.CoverSha256;}
+ static void Atomic(string path,object value){Directory.CreateDirectory(Path.GetDirectoryName(path));string temp=Common.ShortSiblingTempPath(path);try{Common.SaveNew(temp,value);if(File.Exists(path))File.Replace(temp,path,null);else File.Move(temp,path);}finally{if(File.Exists(temp))File.Delete(temp);}}
+ static void References(object value,HashSet<string> references){
+  var d=value as Dictionary<string,object>;if(d!=null){foreach(var v in d.Values)References(v,references);return;}
+  string s=value as string;if(s!=null){s=s.Replace('\\','/');if(s.Length<=1024&&s.IndexOf(':')<0&&(s.StartsWith("models/")||s.StartsWith("movies/")||s.StartsWith("sounds/")||s=="scene.json"))references.Add(s);return;}
+  var list=value as IEnumerable;if(list!=null)foreach(var v in list)References(v,references);
+ }
+ internal static AnalysisReport Analyze(string source,Action cancellation,bool force=false,string suppliedHash=null,Action<string> phase=null){
+  source=Path.GetFullPath(source);var watch=Stopwatch.StartNew();Action check=()=>{cancellation();if(watch.Elapsed.TotalSeconds>30)throw new TimeoutException("本地分析超过30秒预算");};
+  check();LocalImport.NoLinks(source);string sig=CoverCache.Signature(source);var fi=new FileInfo(source);if(fi.Length>256L*1048576)throw new InvalidDataException("文件超过256MiB自动分析预算");if(phase!=null)phase("检查文件变化身份");
+  string ruleHash=null,ruleError=null;FamilyRules rules=null;try{rules=LoadRules(out ruleHash);}catch(Exception ex){ruleError=ex.Message;ruleHash="invalid-"+RuleStamp();}
+  string key=Digest(Encoding.UTF8.GetBytes(source.ToUpperInvariant()));string cache=Path.Combine(Common.Root,"data","analysis-cache",key+".json");
+  if(!force&&File.Exists(cache)&&new FileInfo(cache).Length<4194304){try{var old=Common.Json.Deserialize<AnalysisReport>(Common.ReadShared(cache));if(old.SchemaVersion==2&&old.Source==source&&old.SourceSignature==sig&&old.RuleFingerprint==ruleHash&&HashText(old.Sha256)&&(suppliedHash==null||old.Sha256==suppliedHash)&&CoverValid(old)&&(old.StructureRecognized&&old.CoverRelative!=null||DateTimeOffset.UtcNow-DateTimeOffset.Parse(old.AnalyzedAt)<TimeSpan.FromSeconds(5))){old.CacheHit=true;if(phase!=null)phase("读取已验证的分析结果");return old;}}catch(OperationCanceledException){throw;}catch{}}
+  var report=new AnalysisReport{SchemaVersion=2,Source=source,SourceSignature=sig,Bytes=fi.Length,RuleFingerprint=ruleHash,RuleVersion=rules==null?null:rules.Version,Capability="C",AnalyzedAt=DateTimeOffset.UtcNow.ToString("o"),DependencyScope="只核查可读project/scene/model中的已知相对引用及目录存在性；未解码大媒体、未校验所有外部依赖"};
+  if(phase!=null)phase(suppliedHash==null?"计算完整文件哈希":"复用已核验的完整哈希");report.Sha256=suppliedHash??V3Package.HashFile(source,check);check();
+  if(CoverCache.Signature(source)!=sig)throw new InvalidDataException("完整哈希读取中源文件发生变化");
+  try{
+   using(var stream=new FileStream(source,FileMode.Open,FileAccess.Read,FileShare.ReadWrite|FileShare.Delete))using(var b=new BinaryReader(stream)){byte[] header=b.ReadBytes(16);report.HeaderHex=BitConverter.ToString(header);if(header.Length<16)throw new InvalidDataException("容器头部被截断");report.Magic="0x"+BitConverter.ToUInt32(header,0).ToString("x8");report.DeclaredBytes=BitConverter.ToUInt32(header,4);report.TableBytes=BitConverter.ToUInt32(header,8);report.Bias=BitConverter.ToInt32(header,12);}
+   if(ruleError!=null)throw new InvalidDataException(ruleError);
+   if(phase!=null)phase("识别结构与项目类型");var x=V3Package.InspectStructure(source,check);report.Structure=x;x.Sha256=report.Sha256;if(phase!=null)phase("校验目录范围与必要资源");
+   var names=new HashSet<string>(x.Entries.Select(e=>e.Name),StringComparer.OrdinalIgnoreCase);
+   bool audio=x.Entries.Any(e=>e.Name.StartsWith("sounds/",StringComparison.OrdinalIgnoreCase));
+   report.Variant=audio?"含音频成员（声音功能未据此确认）":"无音频成员";
+   var matches=rules.Families.Where(r=>r.ProjectType==x.ProjectType&&r.ProjectVersion==x.ProjectVersion&&r.Audio==(audio?"present":"absent")).ToList();
+   if(matches.Count!=1)throw new NotSupportedException("目录语法可读，但项目类型/版本/音频条件不匹配唯一结构族");var rule=matches[0];
+   if(x.TableStoredBytes>rule.MaxTable||x.TableDecodedBytes>rule.MaxTable||x.MemberCount>rule.MaxMembers||report.Bytes>rule.MaxSourceMiB*1048576L)throw new InvalidDataException("文件超过结构族规则预算");
+   if(rule.Required.Any(n=>!names.Contains(n))||!x.Entries.Any(e=>e.Name.StartsWith("models/")&&e.Name.EndsWith(".json"))||!x.Entries.Any(e=>e.Name.StartsWith("movies/")&&e.Name.EndsWith(".mp4")))throw new InvalidDataException("缺少必要project、scene、model或movie成员");
+   foreach(var e in x.Entries){if(e.StoredBytes%16!=0||e.Boundaries.Any(v=>v%16!=0))throw new InvalidDataException("成员块边界不符合已证实AES布局");}
+    var refs=new HashSet<string>();int read=0;foreach(var e in x.Entries.Where(e=>e.Name=="project.json"||e.Name=="scene.json"||e.Name.StartsWith("models/")&&e.Name.EndsWith(".json"))){if(++read>64)throw new InvalidDataException("元数据成员超过64项预算");var bytes=V3Package.ReadSmallMember(source,x,e.Name,check);Dictionary<string,object> obj;try{obj=Common.Json.Deserialize<Dictionary<string,object>>(new UTF8Encoding(false,true).GetString(bytes));}catch{throw new InvalidDataException("必要元数据JSON损坏："+e.Name);}if(obj==null)throw new InvalidDataException("必要元数据JSON为空");References(obj,refs);}
+   report.Dependencies=refs.OrderBy(s=>s).ToArray();var missing=refs.Where(n=>!names.Contains(n)).ToArray();if(missing.Length>0)throw new InvalidDataException("已知相对引用缺少目录成员："+String.Join(",",missing.Take(5)));
+   if(x.PreviewMember==null||!rule.Covers.Contains(x.PreviewMember))throw new InvalidDataException("没有已支持的根目录preview成员");
+   report.StructureRecognized=true;report.ContainerValidated=true;report.Family=rule.Id;report.Checks=new[]{"声明长度=实际长度","目录完整消费且连续覆盖EOF","成员路径/重名/块边界","project类型及版本","必要元数据JSON","已知相对引用存在"};report.WindowAttemptAllowed=true;report.Capability="B";report.Reason="已知结构约束通过；不代表所有包内媒体及外部依赖已验证";
+    try{if(phase!=null)phase("读取真实静态封面");string member;byte[] image=V3Package.ReadPreview(source,check,out member);if(image.Length>rule.MaxImage)throw new InvalidDataException("图片超过规则预算");var dimensions=CoverCache.ImageDimensions(image);using(var ms=new MemoryStream(image,false))using(var im=Image.FromStream(ms,true,true)){if(im.Width!=dimensions.Width||im.Height!=dimensions.Height)throw new InvalidDataException("图片解码尺寸不符");}
+    string relative="data/analysis-covers/"+report.Sha256+"/preview"+(member.EndsWith(".png")?".png":".jpg");string cover=Path.Combine(Common.Root,relative.Replace('/',Path.DirectorySeparatorChar));Directory.CreateDirectory(Path.GetDirectoryName(cover));string temp=Common.ShortSiblingTempPath(cover);try{using(var output=new FileStream(temp,FileMode.CreateNew,FileAccess.Write,FileShare.None)){output.Write(image,0,image.Length);output.Flush(true);}check();if(File.Exists(cover))File.Replace(temp,cover,null);else File.Move(temp,cover);}finally{if(File.Exists(temp))File.Delete(temp);}report.CoverRelative=relative;report.CoverSha256=Digest(image);report.CoverMember=member;report.CoverMemberSha256=report.CoverSha256;report.CoverReason="真实包内封面 · 不代表播放通过";
+   }catch(OperationCanceledException){throw;}catch(TimeoutException){throw;}catch(Exception ex){report.CoverReason="封面读取失败："+ex.Message;}
+  }catch(OperationCanceledException){throw;}catch(TimeoutException){throw;}catch(Exception ex){report.Reason=ex.Message;report.ContainerValidated=false;report.StructureRecognized=false;report.WindowAttemptAllowed=false;report.Capability="C";}
+  check();if(CoverCache.Signature(source)!=sig)throw new InvalidDataException("解析期间源文件发生变化，结果未登记");report.FileStable=true;if(HistoricalHash(report.Sha256)){report.HistoricalExactAcceptance=true;report.WindowAttemptAllowed=true;if(!report.StructureRecognized){report.Capability="B";report.Reason+="；此完整哈希命中历史验收范围，保留原窗口准入";}}if(!LocalImport.Under(source,Common.WorkRoot))Atomic(cache,report);if(phase!=null)phase("分析完成");return report;
+ }
+ internal static void AttachCatalog(AnalysisReport r){
+  string path=Path.Combine(Common.Root,"data","catalog.json");if(!File.Exists(path))return;
+  try{var doc=Common.Json.Deserialize<LibraryDocument>(Common.ReadShared(path));var item=doc.Items.FirstOrDefault(x=>x.RegisteredSha256==r.Sha256);if(item==null)return;r.CatalogId=item.Id;r.PrivateSaved=File.Exists(item.SourcePath)&&LocalImport.Under(item.SourcePath,Path.Combine(Common.Root,"library"))&&V3Package.HashFile(item.SourcePath)==r.Sha256;r.WindowConfirmed=item.PreviewConfirmedSha256==r.Sha256||item.Id=="builtin-317495"&&r.Sha256==Common.CwpHash;r.DesktopVerified=item.DesktopConfirmedSha256==r.Sha256;if(r.WindowConfirmed&&r.DesktopVerified)r.Capability="A";}catch{}
+ }
+ internal static string Text(AnalysisReport r){return "本地壁纸分析\r\n文件："+r.Source+"\r\n大小："+r.Bytes+" 字节\r\nSHA-256："+r.Sha256+"\r\n规则："+r.RuleVersion+" / "+r.RuleFingerprint+"\r\n结构："+(r.Family??"未知或未支持")+" · "+r.Variant+"\r\n结果："+r.Reason+"\r\n容器结构校验："+(r.ContainerValidated?"已通过列出的受限项目":"未验证或未通过")+"\r\n封面："+(r.CoverRelative==null?r.CoverReason??"无可靠图片":r.CoverReason)+"\r\n私有保存："+(r.PrivateSaved?"是":"未入本库")+"\r\n允许主动尝试窗口："+(r.WindowAttemptAllowed?"是（不等于播放通过）":"否")+"\r\n窗口人工确认："+r.WindowConfirmed+"\r\n桌面验证："+r.DesktopVerified+"\r\n能力："+r.Capability+"\r\n依赖范围："+r.DependencyScope+"\r\n没有自动导入、播放或改变桌面。\r\n";}
+ internal static void Reports(AnalysisReport r,string folder){Directory.CreateDirectory(folder);Atomic(Path.Combine(folder,"analysis.json"),r);File.WriteAllText(Path.Combine(folder,"分析报告.txt"),Text(r),new UTF8Encoding(false));}
+}

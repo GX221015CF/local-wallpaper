@@ -1,0 +1,100 @@
+{
+  "files": [
+    {
+      "name": "avcodec-58.dll",
+      "sha256": "b17c684b5358dced84e200be4b6c1584ddb851235a14087354397b74a452fe42"
+    },
+    {
+      "name": "avformat-58.dll",
+      "sha256": "554044a5a903cf0c3fe7e4726b950ce57cb31ae6a399bf2976dfd64c96f222d8"
+    },
+    {
+      "name": "avutil-56.dll",
+      "sha256": "5fad76e0ccc730fa25b5ca7375f02589b9ee6664210082b3ea215abe2c77c723"
+    },
+    {
+      "name": "Desktop317495Host-refined.exe",
+      "sha256": "25541b6288a0ace82a75bf65aa73ab910e4e44668929348fd926ce9839786fb7"
+    },
+    {
+      "name": "freetype.dll",
+      "sha256": "490a51943facf1af8982466aa582f75eb15b70be9b888ddce76d56fd65269d9b"
+    },
+    {
+      "name": "ikpmp3.dll",
+      "sha256": "9920a0fa1ed242e82e2734e95913be98d16ebea6369ee11bd283215cb38fd607"
+    },
+    {
+      "name": "irrklang.dll",
+      "sha256": "850f86e410997cb1818b3db40f7ae4d8170cc47b1ae24b2da2cafbc3aeaa3180"
+    },
+    {
+      "name": "jlavdecoder.dll",
+      "sha256": "56f6b6f78a08a69aec6c1c135b3f82c9704616254e7a2c4edf4c1fd5f3ee609b"
+    },
+    {
+      "name": "jljsengine.dll",
+      "sha256": "743721208cc63cfebfd39808c103e0db10300bfb37e2678297d36005c69a7274"
+    },
+    {
+      "name": "jlwpengine.dll",
+      "sha256": "734af1004ee023c427d57e1f817f5f9a115b6f4ba6099be18943d02ae8267524"
+    },
+    {
+      "name": "jlwpengine.resc",
+      "sha256": "b0f152e796674307f785f9003d47622c46b37564fa31d4bfc1d793cc6e132b14"
+    },
+    {
+      "name": "jlwpengine2.resc",
+      "sha256": "2539b2a7983742ffe41f9ea0085a3ef61ffe45020b3935f92112bbc1a1a6b9a7"
+    },
+    {
+      "name": "liblz4.dll",
+      "sha256": "d7760afaa5c3b038f498ffd01a03a38b5fd3dd8d6b7e3c81ac8da8f52f921913"
+    },
+    {
+      "name": "microsoft.vc80.crt.manifest",
+      "sha256": "d736c413543b6b168dc59769840ae95b5726d428f69a23af1659dea8fb4236c8"
+    },
+    {
+      "name": "msvcp140.dll",
+      "sha256": "08442853f19ce4ff3acae37d87eab33ef81c4c6da62a3432d43253ba79842b64"
+    },
+    {
+      "name": "msvcp80.dll",
+      "sha256": "7adab9a24ddb40636680d514efdec41ad88e7377758b9042c92b24cf982dff93"
+    },
+    {
+      "name": "msvcr80.dll",
+      "sha256": "a2d3254d5985d586cc8f3e84125aebb18c1ba893c051597c95ee9eef72172da7"
+    },
+    {
+      "name": "sdl.dll",
+      "sha256": "6ed92438c4b47a5aea93fdf4225b73c8bcee35b3530337d65490ae0b246ea07e"
+    },
+    {
+      "name": "swresample-3.dll",
+      "sha256": "a68142948115df725c8d1773885fb2bc4860cc615fbda90f180cb2d22409bcb8"
+    },
+    {
+      "name": "v8_libbase.dll",
+      "sha256": "065db558763bb29c741574704e08970c58e54ca3f1dbf4c6e781c16ba6d8c514"
+    },
+    {
+      "name": "v8_libplatform.dll",
+      "sha256": "c6f3d2da6879f69e7e363c892f826e9c92f7b3e4d6057dcd6b6b092d01157649"
+    },
+    {
+      "name": "v8.dll",
+      "sha256": "f5179ab5429c10cf6a06850b3ddeb5c8d4fcd686cac155fd22faa24a3b32c776"
+    },
+    {
+      "name": "vcruntime140.dll",
+      "sha256": "49b0fd1751342c253cac588dda82ec08e4ef43cebc5a9d80deb7928109b90c4f"
+    },
+    {
+      "name": "zlib.dll",
+      "sha256": "7044f7e5567a98470790b3bb22d30502755e79cea420ac0213bc08cc991d6d14"
+    }
+  ]
+}

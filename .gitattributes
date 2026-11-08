@@ -1,0 +1,3 @@
+# Preserve source bytes and existing line endings for input fingerprint traceability.
+* -text
+*.ico binary
