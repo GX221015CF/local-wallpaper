@@ -1,0 +1,90 @@
+{
+  "kind": "source-layout-validation",
+  "baseVersion": "0.1.30-import-video-cover-internal-r30",
+  "sourceCommit": "df391cd59ddc0b31704b2d3c521013e92f64cbbf",
+  "cleanGitCheckout": true,
+  "localCloneHardlinks": false,
+  "buildSteps": [
+    {
+      "name": "release-build",
+      "exitCode": 0,
+      "normalExit": true,
+      "forcedTermination": false
+    },
+    {
+      "name": "package-build",
+      "exitCode": 0,
+      "normalExit": true,
+      "forcedTermination": false
+    },
+    {
+      "name": "package-verify",
+      "exitCode": 0,
+      "normalExit": true,
+      "forcedTermination": false
+    }
+  ],
+  "canonicalSourceUnchanged": true,
+  "sourceDeliveryAssertions": [
+    "explicit-isolated-root",
+    "source-default-follows-current-windows-user",
+    "known-video-keeps-resource-type",
+    "empty-isolated-data-has-no-inherited-cover",
+    "synthetic-v2-uses-actual-directory-validator",
+    "structure-rules-resolve-within-isolated-copy",
+    "synthetic-resource-registered-in-isolated-library",
+    "registration-does-not-create-playback-confirmation"
+  ],
+  "assertionCount": 8,
+  "outputs": [
+    {
+      "path": "build/LocalWallpaper.exe",
+      "bytes": 805888,
+      "sha256": "5c7cab1b26507a0436037020e38eea87199b324c3d00666a34babd7428e9a71d"
+    },
+    {
+      "path": "build/LocalWallpaperLauncher.exe",
+      "bytes": 812544,
+      "sha256": "1cce4eff0dc1a5fdbd4e9fcc6ddb9c4f6b8a9a5d0b0d06a88a120a5f30b93a63"
+    },
+    {
+      "path": "build/release.json",
+      "bytes": 1557,
+      "sha256": "e2bca904f8fc06e00a329f49f56796fb05abdec2f42621395cddb04dc891df4f"
+    },
+    {
+      "path": "build/runtime-manifest.json",
+      "bytes": 169,
+      "sha256": "db6f631b5056667303d06fadf199f4abd1b3d79b12d4755228c72165e19bb165"
+    },
+    {
+      "path": "build/WallpaperLocalTool.exe",
+      "bytes": 812544,
+      "sha256": "e6eca87ec8e4287fce0fb5b33b9e6859f6dbee1241a4ebd187411cc94c42621e"
+    },
+    {
+      "path": "build/WallpaperVersionTool.exe",
+      "bytes": 812544,
+      "sha256": "1419f0034cb1a6e63ec8411fc6846b18c81a5dd2c1963df238394c2fcf879830"
+    },
+    {
+      "path": "build/runtime/Desktop317495Host-refined.exe",
+      "bytes": 131072,
+      "sha256": "d6a8b2ab6cb060d98c5b6a0944556102346d251c2ced243be5da609a75a972bd"
+    }
+  ],
+  "verificationPackage": {
+    "bytes": 1550021,
+    "sha256": "cf7344e0f366c8c029dda2a81d4387044b97d22654026f74bebf66da84c6aa6e",
+    "uploaded": false
+  },
+  "windowsGuiStarted": false,
+  "thirdPartyEngineLoaded": false,
+  "playbackStarted": false,
+  "scope": "Source-layout and build reproducibility check. Does not replace original R28/R29/R30 user observations. Not a new feature version.",
+  "correctedPreparationIssues": [
+    "Initial wrapper path escaping fixed",
+    "Initial synthetic v2 test now uses the actual v2 validator",
+    "Git CRLF-aware whitespace attribute preserves original source bytes"
+  ]
+}
