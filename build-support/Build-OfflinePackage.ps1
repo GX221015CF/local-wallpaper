@@ -112,9 +112,3 @@ try {
     if (!$resolvedStage.StartsWith($isolationRoot, [StringComparison]::OrdinalIgnoreCase)) { throw 'Refusing to clean staging outside tests/isolation.' }
     if (Test-Path -LiteralPath $resolvedStage) { Remove-Item -LiteralPath $resolvedStage -Recurse -Force }
 }
-
-
-
-
-
-

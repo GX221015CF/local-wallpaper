@@ -75,8 +75,3 @@ try {
 $json = $report | ConvertTo-Json -Depth 5
 if ($EvidencePath) { $evidence=[IO.Path]::GetFullPath($EvidencePath);New-Item -ItemType Directory -Path (Split-Path -Parent $evidence) -Force|Out-Null;[IO.File]::WriteAllText($evidence, $json, (New-Object Text.UTF8Encoding($false))) }
 Write-Output $json
-
-
-
-
-

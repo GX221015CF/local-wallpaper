@@ -1,3 +1,4 @@
 # Preserve source bytes and existing line endings for input fingerprint traceability.
 * -text
 *.ico binary
+* whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

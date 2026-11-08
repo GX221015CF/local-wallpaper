@@ -15,6 +15,3 @@ try{[IO.File]::WriteAllText($tmp,($r|ConvertTo-Json -Depth 6),(New-Object Text.U
 & (Join-Path $root 'build/WallpaperVersionTool.exe') verify $root
 $verifyExit=$LASTEXITCODE
 if($verifyExit -ne 0){throw "Complete release verification failed with exit $verifyExit"}
-
-
-
