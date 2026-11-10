@@ -48,7 +48,7 @@ internal sealed partial class ControlWindow {
   });
  }
  void InstallCardMenu(WallpaperCard card){
-  var menu=new ContextMenuStrip();menu.Items.Add("重命名",null,(s,e)=>RenameWallpaper(card.Item));card.ContextMenuStrip=menu;
+  var menu=new MaterialMenu();menu.Items.Add("重命名",null,(s,e)=>RenameWallpaper(card.Item));menu.Prepare(uiScale);card.ContextMenuStrip=menu;
   card.Disposed+=(s,e)=>menu.Dispose();
  }
 }

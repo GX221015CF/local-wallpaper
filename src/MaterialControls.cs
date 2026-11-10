@@ -37,7 +37,7 @@ internal sealed class FloatingNameInput : UserControl {
  protected override void Dispose(bool disposing){if(disposing)animation.Dispose();base.Dispose(disposing);}
 }
 
-internal sealed class MaterialNotice : Label {
+internal sealed class MaterialNotice : SummaryLabel {
  readonly Timer timer=new Timer{Interval=16};readonly System.Diagnostics.Stopwatch clock=new System.Diagnostics.Stopwatch();
  internal MaterialNotice(){AutoEllipsis=true;ForeColor=Theme.Blue;timer.Tick+=(s,e)=>{long ms=clock.ElapsedMilliseconds;Padding=new Padding(SoftButton.MotionEnabled?(int)(8*Math.Max(0,1-ms/240d)):0,0,0,0);if(ms>=3500){timer.Stop();Visible=false;}};}
  internal void Present(string value){Text=value;Visible=true;clock.Restart();timer.Start();}
