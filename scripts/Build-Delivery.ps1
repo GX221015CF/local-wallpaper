@@ -63,13 +63,13 @@ try {
     foreach ($file in $canonical) {
         if ((Identity $file.path).sha256 -cne $file.sha256) { throw "Canonical source changed during build: $($file.path)" }
     }
-    $package = Join-Path $stage 'offline-package/LocalWallpaper-0.1.30-import-video-cover-internal-r30.zip'
+    $package = Join-Path $stage 'offline-package/LocalWallpaper-0.1.31-personal-experience-internal-r31.zip'
     $receipt = [ordered]@{
-        result='passed'; version='0.1.30-import-video-cover-internal-r30'; packagingRevision='source-layout.1'
+        result='passed'; version='0.1.31-personal-experience-internal-r31'; packagingRevision='source-layout.1'
         sourceRoot=$root; stageRoot=$stage; steps=$steps; sourceTreeUnchanged=$true
         outputs=@(Get-ChildItem -LiteralPath (Join-Path $stage 'build') -File -Recurse | ForEach-Object { Identity $_.FullName })
         package=(Identity $package); guiStarted=$false; thirdPartyEngineLoaded=$false; playbackStarted=$false
-        note='Rebuilt from extracted R30 source in an owned stage. Runtime pins generated only in that stage. Original observed R30 package retained separately.'
+        note='R31 personal experience built from maintained source in an owned stage. Runtime pins generated only in that stage. Original observed R30 package retained separately.'
     }
     Save (Join-Path $run 'build-result.json') $receipt
     Write-Output ('BUILD_RECEIPT=' + (Join-Path $run 'build-result.json'))
