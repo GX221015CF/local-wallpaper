@@ -36,7 +36,68 @@ internal static class Common {
  internal static Dictionary<string,object> Obj(object x){return (Dictionary<string,object>)x;}
  internal static string S(Dictionary<string,object> d,string k){return d.ContainsKey(k)?Convert.ToString(d[k]):"";}
  internal static void SaveNew(string p,object data){using(var f=new StreamWriter(new FileStream(p,FileMode.CreateNew,FileAccess.Write,FileShare.Read),new UTF8Encoding(false)))f.Write(Json.Serialize(data));}
- internal static void ReplaceJson(string p,object value){string temp=p+".tmp";File.WriteAllText(temp,Json.Serialize(value),new UTF8Encoding(false));if(File.Exists(p))File.Replace(temp,p,null);else File.Move(temp,p);}
+#if TEST_BUILD
+ internal static Action<string,int> TestBeforeAtomicCommit;
+#endif
+ sealed class AtomicWriteGate:IDisposable {
+  readonly System.Threading.Mutex mutex;bool held;
+  internal AtomicWriteGate(string path,Action check,System.Diagnostics.Stopwatch clock){
+   string key;using(var sha=SHA256.Create())key=BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(Path.GetFullPath(path).ToUpperInvariant()))).Replace("-","");
+   mutex=new System.Threading.Mutex(false,@"Local\LocalWallpaperJsonWrite-v1-"+key);
+   try{
+    while(!held){
+     check();if(clock.ElapsedMilliseconds>=500)throw new IOException("等待本文件原子更新超过500毫秒，未覆盖现有登记："+path);
+     try{held=mutex.WaitOne(10);}catch(System.Threading.AbandonedMutexException){held=true;}
+    }
+   }catch{mutex.Dispose();throw;}
+  }
+  public void Dispose(){if(held){mutex.ReleaseMutex();held=false;}mutex.Dispose();}
+ }
+ internal sealed class AtomicWriteResult {
+  public string Target{get;set;}public int Attempts{get;set;}public int FirstHResult{get;set;}public long ElapsedMilliseconds{get;set;}
+ }
+ internal static void ReplaceJson(string p,object value){ReplaceJsonChecked(p,value,()=>{},Path.GetDirectoryName(p));}
+ internal static AtomicWriteResult ReplaceJsonChecked(string p,object value,Action check,string stagingDirectory){
+  check();string text=Json.Serialize(value);
+  string temp=Path.Combine(stagingDirectory,"j-"+Guid.NewGuid().ToString("N").Substring(0,12)+".tmp");
+  var clock=System.Diagnostics.Stopwatch.StartNew();var result=new AtomicWriteResult{Target=p};Exception failure=null;
+  using(var gate=new AtomicWriteGate(p,check,clock)){
+  try{
+   using(var stream=new FileStream(temp,FileMode.CreateNew,FileAccess.Write,FileShare.None))
+   using(var writer=new StreamWriter(stream,new UTF8Encoding(false))){writer.Write(text);writer.Flush();stream.Flush(true);}
+   while(true){
+    check();result.Attempts++;
+    try{
+#if TEST_BUILD
+     if(TestBeforeAtomicCommit!=null)TestBeforeAtomicCommit(p,result.Attempts);
+#endif
+     if(File.Exists(p))File.Replace(temp,p,null);else File.Move(temp,p);
+     result.ElapsedMilliseconds=clock.ElapsedMilliseconds;return result;
+    }catch(IOException error){
+     if(result.FirstHResult==0)result.FirstHResult=error.HResult;
+     int native=error.HResult&65535;
+     error.Data["atomicTarget"]=p;error.Data["atomicAttempts"]=result.Attempts;
+     error.Data["atomicFirstHResult"]=result.FirstHResult;error.Data["atomicElapsedMilliseconds"]=clock.ElapsedMilliseconds;
+     // A partially completed OS replacement is accepted only after exact content verification.
+     if(!File.Exists(temp)){
+      bool verified=false;
+      try{verified=File.Exists(p)&&ReadShared(p)==text;}catch(Exception verification){error.Data["postReplaceVerificationError"]=verification.ToString();}
+      if(verified){result.ElapsedMilliseconds=clock.ElapsedMilliseconds;return result;}
+      throw;
+     }
+     bool transient=native==32||native==33||native==1175||native==1176||((native==80||native==183)&&File.Exists(p));
+     if(!transient||clock.ElapsedMilliseconds>=500||result.Attempts>=12)throw;
+     int delay=Math.Min(60,15*result.Attempts);
+     for(int elapsed=0;elapsed<delay;elapsed+=10){check();System.Threading.Thread.Sleep(Math.Min(10,delay-elapsed));}
+    }
+   }
+  }catch(Exception error){failure=error;throw;}
+  finally{
+   try{if(File.Exists(temp))File.Delete(temp);}
+   catch(Exception cleanup){if(failure!=null)failure.Data["atomicTempCleanupError"]=cleanup.ToString();else throw;}
+  }
+  }
+ }
  internal static string ShortSiblingTempPath(string target){string dir=Path.GetDirectoryName(Path.GetFullPath(target));string temp=Path.Combine(dir,".t"+Guid.NewGuid().ToString("N").Substring(0,16)+".tmp");if(temp.Length>=260)throw new PathTooLongException("目标目录过深，无法在传统Windows路径预算内安全写入临时文件；原文件保持不变。");return temp;}
  internal static void RequestStop(string run,string reason){string p=Path.Combine(run,"stop.request.json");try{SaveNew(p,new{reason=reason,local=DateTimeOffset.Now.ToString("o")});}catch(IOException){if(!File.Exists(p))throw;}}
  [DllImport("user32")]internal static extern uint GetWindowThreadProcessId(IntPtr h,out uint pid);

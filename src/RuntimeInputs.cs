@@ -40,7 +40,24 @@ internal static class RuntimeInputs {
   if(Common.S(m,"scheme")!=Scheme||!String.Equals(Common.S(m,"dataRoot"),Full(Common.Root),StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("运行材料拥有标记不匹配；未访问旧材料。");
  }
  static FileStream Gate(){EnsureRoot();string p=System.IO.Path.Combine(Root,"manager.lock");Safe(p);return new FileStream(p,FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None);}
- internal static void Save(string dir,Dictionary<string,object> r){Safe(dir);Safe(System.IO.Path.Combine(dir,"owner.json"));Common.ReplaceJson(System.IO.Path.Combine(dir,"owner.json"),r);}
+ internal static void Save(string dir,Dictionary<string,object> r){Save(dir,r,CancellationToken.None);}
+ internal static void Save(string dir,Dictionary<string,object> r,CancellationToken token){
+  Safe(dir);string path=System.IO.Path.Combine(dir,"owner.json");Safe(path);
+  // Stage beside entry directories, so active-entry validation never sees a half-written owner.
+  try{
+   var result=Common.ReplaceJsonChecked(path,r,()=>token.ThrowIfCancellationRequested(),System.IO.Path.GetDirectoryName(dir));
+   WriteUpdateEvidence(r,result,null);
+  }catch(Exception error){WriteUpdateEvidence(r,null,error);throw;}
+ }
+ static void WriteUpdateEvidence(Dictionary<string,object> record,Common.AtomicWriteResult result,Exception error){
+  if(!record.ContainsKey("run"))return;
+  try{
+   string run=Common.S(record,"run");if(!Under(run,Common.LogRoot))return;Safe(run);
+   Common.SaveNew(System.IO.Path.Combine(run,"input-write-"+Guid.NewGuid().ToString("N").Substring(0,12)+".json"),
+    new{stage=Common.S(record,"stage"),runToken=Common.S(record,"id"),completed=error==null,update=result,
+     nativeError=error==null?0:error.HResult&65535,hresult=error==null?0:error.HResult,error=error==null?null:error.ToString()});
+  }catch(Exception diagnostic){if(error!=null)error.Data["registryDiagnosticError"]=diagnostic.ToString();}
+ }
  static List<string> Entries(){
   var rows=new List<string>();foreach(string d in System.IO.Directory.EnumerateDirectories(Root)){if(rows.Count>=MaxEntries)throw new IOException("运行材料登记超过64项；需先处理未确认材料，未创建新副本。");rows.Add(d);}return rows;
  }

@@ -63,9 +63,9 @@ try {
     foreach ($file in $canonical) {
         if ((Identity $file.path).sha256 -cne $file.sha256) { throw "Canonical source changed during build: $($file.path)" }
     }
-    $package = Join-Path $stage 'offline-package/LocalWallpaper-0.1.31-personal-experience-internal-r31.zip'
+    $package = Join-Path $stage 'offline-package/LocalWallpaper-0.1.32-stability-internal-r32.zip'
     $receipt = [ordered]@{
-        result='passed'; version='0.1.31-personal-experience-internal-r31'; packagingRevision='source-layout.1'
+        result='passed'; version='0.1.32-stability-internal-r32'; packagingRevision='source-layout.1'
         sourceRoot=$root; stageRoot=$stage; steps=$steps; sourceTreeUnchanged=$true
         outputs=@(Get-ChildItem -LiteralPath (Join-Path $stage 'build') -File -Recurse | ForEach-Object { Identity $_.FullName })
         package=(Identity $package); guiStarted=$false; thirdPartyEngineLoaded=$false; playbackStarted=$false

@@ -115,7 +115,7 @@ internal static class LeaseWorker {
      if(PlaybackFailure.Failed(exit,hostFailure)){workerFailed=true;if(exit==0)exit=1;}
      j.Write("state",new{state=workerFailed?"failed":"exited",message=!workerFailed?"已退出":hostFailure==null?"播放器失败（退出码"+exit+"）":hostFailure.Message,failureStage=hostFailure==null?null:hostFailure.Stage,error=hostFailure==null?null:hostFailure.Error,reason=reason,exitCode=exit,playerExitCode=playerExit,firstFrameVerified=false});
     }catch(OperationCanceledException ex){bool requested=File.Exists(Path.Combine(run,"stop.request.json"));reason=requested?"start-cancelled-before-player":"start-preparation-timeout";exit=requested?0:1;workerFailed=!requested;j.Write("state",new{state=requested?"exited":"failed",message=requested?"已取消启动准备":"启动准备超出20秒预算",error=ex.ToString(),playerCreated=childHandle!=IntPtr.Zero});}
-    catch(Exception ex){workerFailed=true;reason="validation-start-or-monitor-failure";j.Write("state",new{state="failed",message=ex.Message,error=ex.ToString(),failureStage=startStage,reason=reason});exit=1;}
+    catch(Exception ex){workerFailed=true;reason="validation-start-or-monitor-failure";j.Write("state",new{state="failed",message=ex.Message,error=ex.ToString(),hresult=ex.HResult,nativeError=ex.HResult&65535,registryTarget=ex.Data["atomicTarget"],registryAttempts=ex.Data["atomicAttempts"],registryFirstHResult=ex.Data["atomicFirstHResult"],failureStage=startStage,reason=reason});exit=1;}
     finally{
      if(preparationPoll!=null){using(var done=new ManualResetEvent(false)){preparationPoll.Dispose(done);done.WaitOne(1000);}}if(preparationCancel!=null)preparationCancel.Dispose();
      if(childHandle!=IntPtr.Zero&&Common.WaitForSingleObject(childHandle,0)==258){

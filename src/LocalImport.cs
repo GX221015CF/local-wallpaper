@@ -48,7 +48,7 @@ internal static class LocalImport {
 #if TEST_BUILD
  if(req.ContainsKey("testChunkDelay")&&Convert.ToInt32(req["testChunkDelay"])>0)Thread.Sleep(Convert.ToInt32(req["testChunkDelay"]));
 #endif
- var frame=PreviewFrame.Capture(op,target,check);Common.SaveNew(Path.Combine(op,"result.json"),new{ok=true,frame=frame});return 0;}
+ workerStage="capture-target-validation";var frame=PreviewFrame.Capture(op,target,check,name=>workerStage=name);workerStage="capture-result-publish";Common.SaveNew(Path.Combine(op,"result.json"),new{ok=true,frame=frame});return 0;}
    if(Common.S(req,"mode")=="check"||Common.S(req,"mode")=="recheck"){var item=Common.Json.Deserialize<ImportCandidate>(Common.Json.Serialize(req["candidate"]));CandidateChecks.Run(item,check,name=>{workerStage=name;Common.ReplaceJson(Path.Combine(op,"progress.json"),new{phase=name});},Common.S(req,"mode")=="recheck");Common.SaveNew(Path.Combine(op,"result.json"),new{ok=true,candidate=item});return 0;}
    if(Common.S(req,"mode")=="diagnostic"){
 #if TEST_BUILD
