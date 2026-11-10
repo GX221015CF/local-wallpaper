@@ -5,7 +5,7 @@ internal sealed partial class ControlWindow {
  internal bool RestoreInterface(){if(closing)return false;Show();ShowInTaskbar=true;if(WindowState==FormWindowState.Minimized)WindowState=FormWindowState.Normal;Activate();interfaceHidden=false;return true;}
  internal async Task HideAndKeepPlaying(){
   if(closing||transition||restoring||PlayerRole!="alive"||State!="mounted"){libraryHint.Text="请先将一张已确认的壁纸设为桌面，再选择继续播放。";return;}
-  if(importDialog!=null||detailsWindow!=null){libraryHint.Text="请先关闭导入或详情窗口，再选择继续播放。";return;}
+  if(importDialog!=null||detailsWindow!=null||settingsWindow!=null&&settingsWindow.Visible||renameWindow!=null&&!renameWindow.IsDisposed){libraryHint.Text="请先关闭导入、设置或编辑窗口，再选择继续播放。";return;}
   if(tray==null||trayFailed){libraryHint.Text="托盘入口不可用；保留主界面以便停止与退出。";return;}await PauseDiscovery();if(closing||PlayerRole!="alive"||State!="mounted")return;FlushAudio();interfaceHidden=true;Write("interface-hidden",new{explicitUserChoice=true,player=player.Proof,controllerRemains=true,heartbeatsAndJobRemain=true,deadline=false});Hide();
  }
  void RefreshDailyFlow(){RefreshTray();keepPlaying.Enabled=!closing&&!transition&&!restoring&&State=="mounted"&&PlayerRole=="alive";if(interfaceHidden&&State!="mounted"&&!transition&&!closing){RestoreInterface();libraryHint.Text="壁纸已停止或发生异常，界面已恢复；请查看状态或退出。";Write("hidden-interface-auto-restored",new{state=State});}}
@@ -27,8 +27,8 @@ internal sealed partial class ControlWindow {
   finally{restoring=false;}
  }
  void ShowLoginOptions(){
-  var store=new WindowsStartupStore();var f=new Form{Text="登录Windows后恢复上次壁纸",ClientSize=new Size(620,370),StartPosition=FormStartPosition.CenterParent,Font=Font,BackColor=Theme.Canvas};
-  var box=new CheckBox{Text="登录Windows后恢复上次壁纸",Checked=LoginRestore.IsEnabled(store),AutoSize=true,Location=new Point(20,18)};
+  var store=new WindowsStartupStore();var f=new MaterialDialog{Text="登录Windows后恢复上次壁纸",ClientSize=new Size(620,370),StartPosition=FormStartPosition.CenterParent,Font=Font,BackColor=Theme.Canvas};
+  var box=new SpringToggle{Text="登录Windows后恢复上次壁纸",Checked=LoginRestore.IsEnabled(store),AutoSize=false,Width=500,Location=new Point(20,18)};
   var text=new TextBox{ReadOnly=true,Multiline=true,ScrollBars=ScrollBars.Vertical,Bounds=new Rectangle(20,55,580,235),Text="默认关闭；登录时显示本界面，不默认隐藏。\r\n只恢复上次主动设为桌面且保存在管理目录、已有同哈希窗口和桌面确认的资源；失败不换播。\r\n\r\n入口："+Application.ExecutablePath+"\r\n参数：--restore-last\r\n位置：HKEY_CURRENT_USER\\"+WindowsStartupStore.KeyPath+"\r\n值名："+WindowsStartupStore.ValueName+"\r\n\r\n本轮启用前需集中明确确认。勾选只准备计划，不写入系统。启用后取消勾选可仅删除归属匹配的本软件启动项。"};
   var close=new SoftButton{Text="关闭",Bounds=new Rectangle(480,310,120,36)};close.Click+=(s,e)=>f.Close();f.Controls.Add(box);f.Controls.Add(text);f.Controls.Add(close);bool changing=false;
   box.CheckedChanged+=(s,e)=>{if(changing)return;try{if(box.Checked){string hash=LoginRestore.Prepare();Write("login-startup-prepared",new{plan=LoginRestore.PlanPath,planSha256=hash,systemWritten=false});text.AppendText("\r\n\r\n已准备，尚未启用。待本轮集中明确确认后应用该计划。");changing=true;box.Checked=false;changing=false;}

@@ -1,6 +1,6 @@
 ﻿using System;using System.Drawing;using System.Drawing.Drawing2D;using System.Windows.Forms;
 internal static class Theme {
- internal static readonly Color Ink=Color.FromArgb(32,34,39),Muted=Color.FromArgb(116,119,128),Blue=Color.FromArgb(0,103,235),Line=Color.FromArgb(226,228,233),Canvas=Color.FromArgb(246,247,249);
+ internal static readonly Color Ink=Color.FromArgb(31,31,31),Muted=Color.FromArgb(86,94,110),Blue=Color.FromArgb(11,87,208),Line=Color.FromArgb(218,225,238),Canvas=Color.FromArgb(247,249,252);
  internal static GraphicsPath Round(RectangleF r,float radius){var p=new GraphicsPath();float d=Math.Min(radius*2,Math.Min(r.Width,r.Height));p.AddArc(r.X,r.Y,d,d,180,90);p.AddArc(r.Right-d,r.Y,d,d,270,90);p.AddArc(r.Right-d,r.Bottom-d,d,d,0,90);p.AddArc(r.X,r.Bottom-d,d,d,90,90);p.CloseFigure();return p;}
 }
 internal sealed class SoftButton : Button {
@@ -53,10 +53,10 @@ internal sealed class SoftButton : Button {
         var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias;
         g.Clear(Parent == null ? Theme.Canvas : Parent.BackColor);
         Color fill = !Enabled ? Color.FromArgb(239,240,243) : Primary ? (pressed ? Color.FromArgb(0,75,185) : hover ? Color.FromArgb(0,91,216) : Theme.Blue)
-            : pressed ? Color.FromArgb(227,231,238) : hover ? Color.FromArgb(244,246,249) : Color.White;
+            : pressed ? Color.FromArgb(227,231,238) : hover ? Color.FromArgb(232,240,254) : Color.White;
         float insetX = (Width - 3) * .02f * PressAmount(), insetY = (Height - 3) * .02f * PressAmount();
         var bounds = new RectangleF(1 + insetX, 1 + insetY, Width - 3 - insetX * 2, Height - 3 - insetY * 2);
-        using (var path = Theme.Round(bounds, 9)) {
+        using (var path = Theme.Round(bounds, 19)) {
             using (var brush = new SolidBrush(fill)) g.FillPath(brush, path);
             using (var pen = new Pen(Primary && Enabled ? fill : Theme.Line)) g.DrawPath(pen, path);
             double age = (clock.ElapsedMilliseconds - rippleAt) / 480d;
@@ -86,5 +86,5 @@ internal sealed class StatusLinkLabel:LinkLabel {
 }
 internal sealed class RoundedPanel:Panel {
  internal RoundedPanel(){DoubleBuffered=true;BackColor=Color.White;}
- protected override void OnPaintBackground(PaintEventArgs e){e.Graphics.Clear(Parent==null?Theme.Canvas:Parent.BackColor);e.Graphics.SmoothingMode=SmoothingMode.AntiAlias;using(var path=Theme.Round(new RectangleF(1,1,Width-3,Height-3),12)){using(var b=new SolidBrush(BackColor))e.Graphics.FillPath(b,path);using(var p=new Pen(Theme.Line))e.Graphics.DrawPath(p,path);}}
+ protected override void OnPaintBackground(PaintEventArgs e){e.Graphics.Clear(Parent==null?Theme.Canvas:Parent.BackColor);e.Graphics.SmoothingMode=SmoothingMode.AntiAlias;using(var path=Theme.Round(new RectangleF(1,1,Width-3,Height-3),20)){using(var b=new SolidBrush(BackColor))e.Graphics.FillPath(b,path);using(var p=new Pen(Theme.Line))e.Graphics.DrawPath(p,path);}}
 }

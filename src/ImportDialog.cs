@@ -4,10 +4,11 @@ internal sealed partial class ControlWindow {
  async void OpenLocalImport(){if(closing)return;if(sourceState==null||!sourceState.Found){MessageBox.Show(this,sourceState!=null&&sourceState.SavedCustom?"已保存的壁纸来源不可用。请先点击首页的来源状态重新选择符合已知布局的目录。":"尚未找到本机壁纸来源。请先点击首页的来源状态浏览已有缓存位置。","壁纸来源尚未准备好",MessageBoxButtons.OK,MessageBoxIcon.Information);return;}await PauseDiscovery();if(closing)return;if(importDialog!=null&&!importDialog.IsDisposed){importDialog.Activate();return;}importDialog=new ImportDialog(this);importDialog.FormClosed+=(s,e)=>{importDialog=null;discoveryNext=DateTimeOffset.MinValue;};importDialog.Show(this);}
  async Task<Dictionary<string,object>> ImportJob(string mode,ImportCandidate c,Action<string,long,long> progress,int testDelay=0){if(importOperation!=null&&importOperation.Busy)throw new InvalidOperationException("已有本地任务，请等待或取消");importOperation=new ImportOperation(Write);var op=importOperation;try{return await op.Run(mode,c,progress,testDelay);}catch{LocalImport.CleanPayload(op.Folder);throw;}}
  async Task StopImport(){var d=importDialog;if(d!=null&&!d.IsDisposed)await d.StopQueue();if(importOperation!=null){await importOperation.Stop();Write("local-import-close-clean",new{operation=importOperation.Folder,busy=importOperation.Busy});}}
- sealed class ImportDialog:Form {
+ sealed class ImportDialog:MaterialDialog {
   readonly ControlWindow owner;readonly ImageList thumbs=new ImageList{ImageSize=new Size(64,40),ColorDepth=ColorDepth.Depth32Bit};
   internal readonly ListView list=new ListView();readonly PictureBox cover=new PictureBox();internal readonly TextBox note=new TextBox();internal readonly Label status=new Label();internal readonly ProgressBar progress=new ProgressBar();
   internal readonly Button import=new SoftButton(),analyze=new SoftButton(),cancel=new SoftButton(),refresh=new SoftButton();readonly ToolTip guidance=new ToolTip{AutoPopDelay=15000};
+  readonly TextBox candidateSearch=new TextBox();
   bool scanning,copying,queueRunning,queueStop,allowClose,closeRequested;Task queueTask;string phase;int done,total;readonly Dictionary<string,int> waitingRetries=new Dictionary<string,int>();
 #if TEST_BUILD
   internal bool TestSkipInitialScan;
@@ -17,7 +18,12 @@ internal sealed partial class ControlWindow {
 #endif
   internal ImportDialog(ControlWindow window){owner=window;Text="导入联想已下载壁纸";Font=window.Font;BackColor=Theme.Canvas;StartPosition=FormStartPosition.CenterParent;AutoScaleMode=AutoScaleMode.Dpi;ClientSize=new Size(1140,650);MinimumSize=new Size(1040,600);
    var root=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(22),RowCount=5,ColumnCount=1};root.RowStyles.Add(new RowStyle(SizeType.Absolute,58));root.RowStyles.Add(new RowStyle(SizeType.Percent,100));root.RowStyles.Add(new RowStyle(SizeType.Absolute,52));root.RowStyles.Add(new RowStyle(SizeType.Absolute,12));root.RowStyles.Add(new RowStyle(SizeType.Absolute,56));Controls.Add(root);
-   root.Controls.Add(new Label{Text="候选会自动排队检查；图片从壁纸封面或视频画面中读取。\n检查通过后由你决定是否导入；不会自动播放或改变桌面。",Dock=DockStyle.Fill,ForeColor=Theme.Muted},0,0);
+   var searchRow=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2};searchRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,60));searchRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,40));
+   searchRow.Controls.Add(new Label{Text="检查通过后明确导入。图片用于辨认，播放仍需预览确认。",Dock=DockStyle.Fill,ForeColor=Theme.Muted},0,0);
+   var searchPanel=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=2};searchPanel.RowStyles.Add(new RowStyle(SizeType.Absolute,20));searchPanel.RowStyles.Add(new RowStyle(SizeType.Percent,100));
+   searchPanel.Controls.Add(new Label{Text="搜索定位候选 · 名称或ID",AutoSize=true},0,0);candidateSearch.Dock=DockStyle.Fill;searchPanel.Controls.Add(candidateSearch,0,1);searchRow.Controls.Add(searchPanel,1,0);root.Controls.Add(searchRow,0,0);
+   candidateSearch.TextChanged+=(s,e)=>{string query=candidateSearch.Text.Trim();if(query.Length==0)return;var match=list.Items.Cast<ListViewItem>().FirstOrDefault(row=>{var item=(ImportCandidate)row.Tag;return (item.Name??"").IndexOf(query,StringComparison.CurrentCultureIgnoreCase)>=0||(item.Id??"").IndexOf(query,StringComparison.OrdinalIgnoreCase)>=0;});if(match!=null){match.Selected=true;match.EnsureVisible();}};
+
    var body=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2};body.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,76));body.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,24));root.Controls.Add(body,0,1);
    list.Dock=DockStyle.Fill;list.View=View.Details;list.SmallImageList=thumbs;list.FullRowSelect=true;list.MultiSelect=false;list.HideSelection=false;list.ShowItemToolTips=true;
    list.Columns.Add("名称 / ID",210);list.Columns.Add("大小",86);list.Columns.Add("资源",82);list.Columns.Add("检查",90);list.Columns.Add("封面",110);list.Columns.Add("播放记录",160);list.Resize+=(s,e)=>{list.Columns[0].Width=Math.Max(180,list.ClientSize.Width-86-82-90-110-160-SystemInformation.VerticalScrollBarWidth-4);};body.Controls.Add(list,0,0);

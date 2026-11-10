@@ -9,7 +9,7 @@ internal sealed partial class ControlWindow {
   emptyState.Visible=show;
   if(!show)return;
   var copy=EmptyStatePresentation.Create(sourceState,RuntimeProvisioning.Available,runtimeCheckRunning,Common.Root);
-  emptyLead.Text=copy.Lead;
+  emptyLead.Text="查看本机已下载的壁纸，检查通过后选择导入。准备问题请打开设置。";
   emptySource.Text=copy.Source;
   emptyData.Text=copy.Data;
   emptyPlayback.Text=copy.Playback;

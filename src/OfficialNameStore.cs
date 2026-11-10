@@ -19,6 +19,7 @@ internal static class OfficialNameStore {
  internal static bool Placeholder(string name,string id,string hash,out string suffix){suffix="";if(PackageAnalysis.HashText(hash)&&name!=null){string s=" · "+hash.Substring(0,8);if(name.EndsWith(s,StringComparison.Ordinal)){suffix=s;name=name.Substring(0,name.Length-s.Length);}}return name=="本地壁纸 "+id||name=="本地场景 "+id;}
  internal static string ItemId(WallpaperItem item){return Id(item.ResourceId)?item.ResourceId:item.NameSource!=null&&Valid(item.NameSource,item.NameSource.Id)?item.NameSource.Id:null;}
  internal static bool Update(WallpaperItem item,NameEvidence e,Action<string,object> log){
+  if(item.CustomName!=null)return false;
   if(!Valid(e,e==null?null:e.Id)||!PackageAnalysis.HashText(item.RegisteredSha256))return false;string id=ItemId(item);if(id!=null&&id!=e.Id)return false;string suffix;
   if(!Placeholder(item.Name,e.Id,item.RegisteredSha256,out suffix)){if(log!=null)log("official-name-kept",new{catalogId=item.Id,resourceId=e.Id,reason=item.Name==e.Name?"existing meaningful name already matches":"existing meaningful or user-defined name preserved"});return false;}
   item.Name=e.Name+suffix;item.NameSource=e;return true;

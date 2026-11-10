@@ -1,7 +1,7 @@
 using System;using System.IO;using System.Linq;using System.Drawing;using System.Windows.Forms;using System.Collections.Generic;using System.Threading.Tasks;
 internal sealed partial class ControlWindow {
  readonly Button handoff=new SoftButton();readonly Queue<Dictionary<string,object>> diagnosticEvents=new Queue<Dictionary<string,object>>();FaultRecord lastFault;FaultHandoffForm faultWindow;string lastFaultKey;Action faultRetry;
- void InstallFaultEntry(){handoff.Text="提交给Agent";handoff.Name="AgentHandoff";handoff.Dock=DockStyle.Fill;handoff.Margin=new Padding(U(8),0,0,0);var grid=(TableLayoutPanel)banner.Controls[0];grid.Controls.Remove(countdown);grid.Controls.Remove(activeName);grid.SetColumnSpan(lease,1);grid.Controls.Add(countdown,1,2);grid.Controls.Add(handoff,1,0);grid.SetRowSpan(handoff,2);handoff.Click+=(s,e)=>OpenFaultHandoff(false);
+ void InstallFaultEntry(){handoff.Text="提交给Agent";handoff.Name="AgentHandoff";handoff.Dock=DockStyle.Fill;handoff.Margin=new Padding(U(8),0,0,0);handoff.Click+=(s,e)=>OpenFaultHandoff(false);
   try{string p=Path.Combine(Common.Root,"diagnostics","last-fault.json");if(File.Exists(p)&&new FileInfo(p).Length<=98304){LocalImport.NoLinks(p);lastFault=FaultSafety.Sanitize(Common.Json.Deserialize<FaultRecord>(Common.ReadShared(p)));handoff.Text="提交给Agent";}}catch{}
  }
  FaultRecord CaptureFault(string category,string operation,string stage,string reason,ImportCandidate candidate=null,bool demo=false){

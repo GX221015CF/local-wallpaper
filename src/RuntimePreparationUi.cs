@@ -50,7 +50,7 @@ internal sealed partial class ControlWindow {
         personalLibraryStatus.AutoEllipsis = true;
         personalLibraryStatus.ForeColor = Muted;
         personalLibraryStatus.Text = "个人库 · " + library.Doc.Items.Count + " 张  |  " + Common.Root + "\n来源状态见顶部；点击来源可调整。选中卡片不会立即切换播放。";
-        panel.Controls.Add(personalLibraryStatus, 0, 3);
+        panel.Controls.Add(new Label{Text="完整身份核验不代表已加载或正在播放。取消保留原配置，播放开始前仍核验。",Dock=DockStyle.Fill,ForeColor=Muted}, 0, 3);
         preparationFold.Tick += (s, e) => {
             float progress = Math.Min(1, preparationFoldClock.ElapsedMilliseconds / 340f);
             ResizePreparationFold(foldStart + (foldTarget - foldStart) * (1 - (float)Math.Pow(1 - progress, 3)));
@@ -72,7 +72,7 @@ internal sealed partial class ControlWindow {
     void ResizePreparationFold(float height) {
         preparationPanel.RowStyles[3].Height = height;
         var parent = preparationPanel.Parent as TableLayoutPanel;
-        if (parent != null) parent.RowStyles[1].Height = U(112) + height;
+        if (parent != null && parent.RowStyles.Count>1) parent.RowStyles[1].Height = U(112) + height;
     }
 
     void UpdatePreparationActions() {
@@ -82,8 +82,8 @@ internal sealed partial class ControlWindow {
         chooseComponents.Enabled = !closing && !runtimeCheckRunning && !transition;
         adoptComponents.Enabled = !closing && !runtimeCheckRunning && !transition && !RuntimeProvisioning.Available
             && runtimeDiscovery != null && runtimeDiscovery.CandidateRoot != null;
-        personalLocationsToggle.Text = "个人库 · " + library.Doc.Items.Count + " 张   " + (locationsExpanded ? "▾ 收起位置说明" : "▸ 展开位置说明") + "   · 选中不会切换播放";
-        personalLibraryStatus.Text = "持久个人库：" + Common.Root + "\n壁纸来源：" + (sourceState == null ? "正在检查" : sourceState.Root);
+        personalLocationsToggle.Text = (locationsExpanded ? "▾ 收起核验说明" : "▸ 展开核验说明");
+        personalLibraryStatus.Text = "持久个人库\n" + Common.Root + "\n导入的壁纸和封面在这里持续保存。";
     }
 
     async void StartRuntimeCheckOnStartup() {
