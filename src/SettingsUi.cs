@@ -5,8 +5,8 @@ using System.Linq;
 using System.Windows.Forms;
 
 internal static class SettingsIdentityText {
- internal static string Selection(WallpaperItem selected){return selected==null?"当前选中 · 无":"当前选中 · "+selected.Name+"\n资源ID · "+(selected.ResourceId??selected.Id)+"\n文件 · "+selected.SourcePath;}
- internal static string Playing(WallpaperLibrary library,string activeId,string original,bool alive,string run){return alive?"实际播放 · "+WallpaperNames.ActiveName(library,activeId,original)+"\n资源条目 · "+activeId+"\n本次任务 · "+run:"实际播放 · 当前未播放\n最近任务 · "+(run??"无");}
+ internal static string Selection(WallpaperItem selected){return selected==null?"当前选中 · 无":"当前选中 · "+selected.Name+"\n"+ResourcePresentation.Id(selected)+"\n文件 · "+selected.SourcePath;}
+ internal static string Playing(WallpaperLibrary library,string activeId,string original,bool alive,string run){var item=library.Doc.Items.FirstOrDefault(row=>row.Id==activeId);return alive?"实际播放 · "+WallpaperNames.ActiveName(library,activeId,original)+"\n"+(item==null?"本地条目 "+activeId:ResourcePresentation.Id(item))+"\n本次任务 · "+run:"实际播放 · 当前未播放\n最近任务 · "+(run??"无");}
 }
 
 internal sealed partial class ControlWindow {

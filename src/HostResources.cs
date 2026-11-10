@@ -1,6 +1,16 @@
 using System;using System.IO;using System.Collections.Generic;using System.Threading;using System.Security.Cryptography;using System.Web.Script.Serialization;
 // No native calls. Only pinned resource archives and our own host are staged.
-internal sealed class HostResources {
+internal sealed partial class HostResources {
+#if TEST_BUILD
+ internal static Action<string,string> TestBeforeCommit;
+ internal static Action<string,string> TestMoveDirectory;
+#endif
+ static void MoveDirectory(string source,string destination){
+#if TEST_BUILD
+  if(TestMoveDirectory!=null){TestMoveDirectory(source,destination);return;}
+#endif
+  Directory.Move(source,destination);
+ }
  internal static readonly string[] Archives={"jlwpengine.resc","jlwpengine2.resc"};
  internal string Root{get;private set;} internal string Image{get;private set;} internal string Contract{get;private set;}
  const string HostName="Desktop317495Host-refined.exe";
@@ -23,8 +33,35 @@ internal sealed class HostResources {
   string temporary=Path.Combine(run,"s"+Guid.NewGuid().ToString("N").Substring(0,7));PathBudget(temporary);NoLinks(temporary);if(Directory.Exists(temporary)||File.Exists(temporary))throw new IOException("本次宿主暂存目录已被占用，保留原内容，请重试");
   var rows=ReadContract(contract,contractHash,hostHash,token);if(Hash(host,token)!=hostHash)throw new InvalidDataException("待暂存宿主身份不符");foreach(string name in Archives)if(!resolved.ContainsKey(name))throw new InvalidDataException("缺少已核验资源："+name);
   var staged=new HostResources{Root=temporary,Image=Path.Combine(temporary,"build","runtime",HostName),Contract=Path.Combine(temporary,"rules","runtime-components.json")};
-  try{Directory.CreateDirectory(Path.GetDirectoryName(staged.Image));Directory.CreateDirectory(Path.GetDirectoryName(staged.Contract));Copy(host,staged.Image,hostHash,token);Copy(contract,staged.Contract,contractHash,token);foreach(string name in Archives)Copy(resolved[name],Path.Combine(Path.GetDirectoryName(staged.Image),name),rows[name],token);token.ThrowIfCancellationRequested();Directory.Move(temporary,final);staged.Root=final;staged.Image=ImageFor(run);staged.Contract=Path.Combine(final,"rules","runtime-components.json");return staged;}
-  catch(Exception original){try{staged.Cleanup();}catch(Exception clean){throw new AggregateException("宿主暂存及清理失败，保留原始故障与现场",original,clean);}throw;}
+  var attempts=new List<object>();string identity=null;bool cleaned=false,committed=false;Exception failure=null,cleanupFailure=null;
+  try{
+   Directory.CreateDirectory(Path.GetDirectoryName(staged.Image));Directory.CreateDirectory(Path.GetDirectoryName(staged.Contract));
+   Copy(host,staged.Image,hostHash,token);Copy(contract,staged.Contract,contractHash,token);
+   foreach(string name in Archives)Copy(resolved[name],Path.Combine(Path.GetDirectoryName(staged.Image),name),rows[name],token);
+   token.ThrowIfCancellationRequested();identity=DirectoryIdentity(temporary);
+   var expected=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase){{Path.Combine("build","runtime",HostName),hostHash},{Path.Combine("rules","runtime-components.json"),contractHash}};
+   foreach(string name in Archives)expected.Add(Path.Combine("build","runtime",name),rows[name]);
+#if TEST_BUILD
+   if(TestBeforeCommit!=null)TestBeforeCommit(temporary,final);
+#endif
+   Commit(staged,final,identity,expected,token,attempts);committed=true;return staged;
+  }catch(Exception original){
+   failure=original;
+   try{
+    if(original.Data.Contains("hostRetainUntrusted")||identity!=null&&Directory.Exists(staged.Root)&&DirectoryIdentity(staged.Root)!=identity)throw new IOException("宿主暂存归属变化或提交状态不明，保留现场供核对");
+    staged.Cleanup();cleaned=true;
+   }catch(Exception clean){cleanupFailure=clean;original.Data["hostStageCleanupError"]=clean.ToString();}
+   throw;
+  }finally{
+   try{
+    Common.SaveNew(Path.Combine(run,"host-stage-result.json"),new{
+     committed=committed,temporary=temporary,target=final,directoryIdentity=identity,attempts=attempts,
+     firstCommitError=staged.FirstCommitError,originalError=failure==null?null:failure.ToString(),
+     hresult=failure==null?0:failure.HResult,nativeError=failure==null?0:failure.HResult&65535,
+     stagingCleaned=cleaned,stagingRetained=!committed&&!cleaned,cleanupError=cleanupFailure==null?null:cleanupFailure.ToString(),
+     sourceStillExists=Directory.Exists(temporary),targetExists=Directory.Exists(final),playerCreated=false});
+   }catch(Exception diagnostic){if(failure!=null)failure.Data["hostStageDiagnosticError"]=diagnostic.ToString();}
+  }
  }
  internal void Cleanup(){if(!Directory.Exists(Root))return;NoLinks(Root);var expectedFiles=new HashSet<string>(StringComparer.OrdinalIgnoreCase){Image,Contract};foreach(string name in Archives)expectedFiles.Add(Path.Combine(Path.GetDirectoryName(Image),name));var expectedDirs=new HashSet<string>(StringComparer.OrdinalIgnoreCase){Path.Combine(Root,"build"),Path.Combine(Root,"build","runtime"),Path.Combine(Root,"rules")};
   var directories=new List<string>{Root};var allFiles=new List<string>();for(int i=0;i<directories.Count;i++){string dir=directories[i];NoLinks(dir);foreach(string f in Directory.GetFiles(dir)){NoLinks(f);if(!expectedFiles.Contains(f))throw new IOException("宿主目录含未知文件，保留全部现场："+f);allFiles.Add(f);}foreach(string sub in Directory.GetDirectories(dir)){NoLinks(sub);if(!expectedDirs.Contains(sub))throw new IOException("宿主目录含未知目录，保留全部现场："+sub);directories.Add(sub);}}

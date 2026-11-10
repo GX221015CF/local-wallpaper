@@ -4,17 +4,18 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 internal class MaterialDialog : Form {
+ readonly Icon ownedIcon;
  readonly Timer animation=new Timer{Interval=16};
  readonly System.Diagnostics.Stopwatch clock=new System.Diagnostics.Stopwatch();
  Rectangle finalBounds;
- internal MaterialDialog(){BackColor=Theme.Canvas;Font=new Font("Microsoft YaHei UI",10);ForeColor=Theme.Ink;AutoScaleMode=AutoScaleMode.Dpi;}
+ internal MaterialDialog(){ownedIcon=AppVisuals.LoadIcon();Icon=ownedIcon;BackColor=Theme.Canvas;Font=new Font("Microsoft YaHei UI",10);ForeColor=Theme.Ink;AutoScaleMode=AutoScaleMode.Dpi;}
  protected override void OnShown(EventArgs e){
   base.OnShown(e);if(!SoftButton.MotionEnabled)return;
   finalBounds=Bounds;clock.Restart();
   animation.Tick+=(s,args)=>{double t=Math.Min(1,clock.ElapsedMilliseconds/240d);float scale=(float)(.96+.04*(1-Math.Pow(1-t,3)));Bounds=new Rectangle(finalBounds.X+(int)(finalBounds.Width*(1-scale)/2),finalBounds.Y+(int)(finalBounds.Height*(1-scale)/2),(int)(finalBounds.Width*scale),(int)(finalBounds.Height*scale));if(t>=1){Bounds=finalBounds;animation.Stop();}};
   animation.Start();
  }
- protected override void Dispose(bool disposing){if(disposing)animation.Dispose();base.Dispose(disposing);}
+ protected override void Dispose(bool disposing){if(disposing){animation.Dispose();Icon=null;if(ownedIcon!=null)ownedIcon.Dispose();}base.Dispose(disposing);}
 }
 
 internal sealed class SpringToggle : CheckBox {
@@ -44,14 +45,20 @@ internal sealed class MaterialNotice : Label {
 }
 
 internal sealed class MaterialTabs : TabControl {
- readonly Timer timer=new Timer{Interval=16};readonly System.Diagnostics.Stopwatch clock=new System.Diagnostics.Stopwatch();
- RectangleF pill,start,target;
- internal MaterialTabs(){DrawMode=TabDrawMode.OwnerDrawFixed;ItemSize=new Size(130,42);SizeMode=TabSizeMode.Fixed;Padding=new Point(12,8);timer.Tick+=(s,e)=>{float t=Math.Min(1,clock.ElapsedMilliseconds/280f);pill=new RectangleF(start.X+(target.X-start.X)*t,target.Y,target.Width,target.Height);Invalidate();if(t>=1)timer.Stop();};}
- protected override void OnSelectedIndexChanged(EventArgs e){base.OnSelectedIndexChanged(e);if(SelectedIndex<0)return;start=pill;target=GetTabRect(SelectedIndex);clock.Restart();if(IsHandleCreated&&SoftButton.MotionEnabled)timer.Start();else pill=target;Invalidate();}
- protected override void OnDrawItem(DrawItemEventArgs e){var g=e.Graphics;g.SmoothingMode=SmoothingMode.AntiAlias;using(var background=new SolidBrush(Theme.Canvas))g.FillRectangle(background,e.Bounds);bool chosen=e.Index==SelectedIndex;if(chosen){var r=pill.Width>0?pill:e.Bounds;r.Inflate(-2,-3);using(var path=Theme.Round(r,17))using(var brush=new SolidBrush(Color.FromArgb(211,227,253)))g.FillPath(brush,path);using(var pen=new Pen(Theme.Blue,2))g.DrawLine(pen,start.X+(target.X-start.X)*Math.Min(1,clock.ElapsedMilliseconds/240f)+24,e.Bounds.Bottom-3,start.X+(target.X-start.X)*Math.Min(1,clock.ElapsedMilliseconds/240f)+target.Width-24,e.Bounds.Bottom-3);}TextRenderer.DrawText(g,TabPages[e.Index].Text,Font,e.Bounds,chosen?Theme.Blue:Theme.Muted,TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter);}
- protected override void Dispose(bool disposing){if(disposing)timer.Dispose();base.Dispose(disposing);}
+ internal MaterialTabs(){DrawMode=TabDrawMode.OwnerDrawFixed;ItemSize=new Size(130,42);SizeMode=TabSizeMode.Fixed;Padding=new Point(12,8);}
+ protected override void OnSelectedIndexChanged(EventArgs e){base.OnSelectedIndexChanged(e);Invalidate();}
+ protected override void OnResize(EventArgs e){base.OnResize(e);Invalidate();}
+ protected override void OnVisibleChanged(EventArgs e){base.OnVisibleChanged(e);Invalidate();}
+ protected override void OnDrawItem(DrawItemEventArgs e){
+  var g=e.Graphics;g.SmoothingMode=SmoothingMode.AntiAlias;using(var background=new SolidBrush(Theme.Canvas))g.FillRectangle(background,e.Bounds);
+  bool chosen=e.Index==SelectedIndex;
+  if(chosen){var bounds=new RectangleF(e.Bounds.X+2,e.Bounds.Y+3,e.Bounds.Width-4,e.Bounds.Height-6);
+   using(var path=Theme.Round(bounds,17))using(var brush=new SolidBrush(Color.FromArgb(211,227,253)))g.FillPath(brush,path);
+   using(var pen=new Pen(Theme.Blue,2))g.DrawLine(pen,e.Bounds.Left+24,e.Bounds.Bottom-3,e.Bounds.Right-24,e.Bounds.Bottom-3);
+  }
+  TextRenderer.DrawText(g,TabPages[e.Index].Text,Font,e.Bounds,chosen?Theme.Blue:Theme.Muted,TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter);
+ }
 }
-
 internal sealed class LoadingSkeleton : Control {
  readonly Timer timer=new Timer{Interval=80};int step;
  internal LoadingSkeleton(){Height=48;DoubleBuffered=true;timer.Tick+=(s,e)=>{step=(step+1)%6;Invalidate();};VisibleChanged+=(s,e)=>{if(Visible&&SoftButton.MotionEnabled)timer.Start();else timer.Stop();};}

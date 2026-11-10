@@ -108,7 +108,7 @@ internal sealed partial class ControlWindow {
  string inputCleanupRun;
  void ConfirmCleanup(string reason){
   if(CurrentRun!=null&&Clean&&inputCleanupRun!=CurrentRun){inputCleanupRun=CurrentRun;RuntimeInputs.Maintain(150);Write("runtime-input-maintenance",new{run=CurrentRun,message=RuntimeInputs.LastReport,scope=RuntimeInputs.Scheme});}
-  if(!Clean)return;string failure=lastRunFailure??lastAttemptFailure;if(failure==null)ShowState("exited","已退出","播放器与worker分别确认已退出，或明确未创建播放器");else ShowState("failed-cleaned","试播失败，已清理",failure+"；worker与播放器已分别核验");if(CurrentRun!=null&&!File.Exists(Path.Combine(CurrentRun,"controller-cleanup.json")))Common.SaveNew(Path.Combine(CurrentRun,"controller-cleanup.json"),new{confirmed=true,reason=reason,workerState=WorkerRole,playerState=PlayerRole,local=DateTimeOffset.Now.ToString("o"),playerProof=player==null?null:player.Proof});
+  if(!Clean)return;string failure=lastRunFailure??lastAttemptFailure;if(failure==null)ShowState("exited","已退出","播放器与worker分别确认已退出，或明确未创建播放器");else ShowState("failed-cleaned","播放失败，任务已结束",failure+"；"+ResourcePresentation.FailureMaterials(CurrentRun));if(CurrentRun!=null&&!File.Exists(Path.Combine(CurrentRun,"controller-cleanup.json")))Common.SaveNew(Path.Combine(CurrentRun,"controller-cleanup.json"),new{confirmed=true,reason=reason,workerState=WorkerRole,playerState=PlayerRole,local=DateTimeOffset.Now.ToString("o"),playerProof=player==null?null:player.Proof});
  }
  internal void Poll(){
   EmitUiHeartbeat();if(CurrentRun==null)return;ImportHandoff();ObserveWorkerHeartbeat();string events=Path.Combine(CurrentRun,"events.jsonl");

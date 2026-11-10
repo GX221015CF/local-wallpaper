@@ -16,24 +16,36 @@ internal sealed class RenameWallpaperDialog : MaterialDialog {
   Editor.Dock=DockStyle.Fill;Editor.Input.Text=current;Editor.Input.MaxLength=WallpaperNames.MaximumLength+1;layout.Controls.Add(Editor,0,1);
   Validation.Dock=DockStyle.Fill;Validation.ForeColor=Color.Firebrick;layout.Controls.Add(Validation,0,2);
   var buttons=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.RightToLeft};foreach(var b in new[]{SaveButton,CancelButtonControl}){b.Size=new Size(120,38);buttons.Controls.Add(b);}layout.Controls.Add(buttons,0,3);
-  SaveButton.Click+=(s,e)=>TrySave();Editor.Input.TextChanged+=(s,e)=>ValidateInput();AcceptButton=SaveButton;CancelButton=CancelButtonControl;
+  SaveButton.Click+=(s,e)=>TrySave();CancelButtonControl.Click+=(s,e)=>CancelEdit();Editor.Input.TextChanged+=(s,e)=>ValidateInput();AcceptButton=SaveButton;CancelButton=CancelButtonControl;
   Shown+=(s,e)=>{Editor.Input.Focus();Editor.Input.SelectAll();};ValidateInput();
  }
- void ValidateInput(){try{WallpaperNames.Validate(Editor.Input.Text);Validation.Text="最多80个字符；资源ID、文件和确认保持关联。";Validation.ForeColor=Theme.Muted;SaveButton.Enabled=true;}catch(Exception error){Validation.Text=error.Message;Validation.ForeColor=Color.Firebrick;SaveButton.Enabled=false;}}
+ internal void CancelEdit(){DialogResult=DialogResult.Cancel;Close();}
+ protected override bool ProcessDialogKey(Keys keyData){if(keyData==Keys.Escape){CancelEdit();return true;}return base.ProcessDialogKey(keyData);}
+ void ValidateInput(){try{WallpaperNames.Validate(Editor.Input.Text);Validation.Text="最多80个字符；ID、文件和确认保持关联。";Validation.ForeColor=Theme.Muted;SaveButton.Enabled=true;}catch(Exception error){Validation.Text=error.Message;Validation.ForeColor=Color.Firebrick;SaveButton.Enabled=false;}}
  internal bool TrySave(){try{save(WallpaperNames.Validate(Editor.Input.Text));DialogResult=DialogResult.OK;Close();return true;}catch(Exception error){Validation.Text="未保存："+error.Message;Validation.ForeColor=Color.Firebrick;Editor.Input.Focus();return false;}}
 }
 
 internal sealed partial class ControlWindow {
+#if TEST_BUILD
+ internal bool TestSuppressRenameShow;
+#endif
  RenameWallpaperDialog renameWindow;
  readonly SoftButton renameWallpaper=new SoftButton();
  void RenameWallpaper(WallpaperItem item){
   if(item==null||closing)return;
   if(renameWindow!=null&&!renameWindow.IsDisposed){renameWindow.Activate();return;}
-  var dialog=new RenameWallpaperDialog(item.Name,name=>{
+  var dialog=CreateRenameEditor(item);
+  renameWindow=dialog;dialog.FormClosed+=(s,e)=>{renameWindow=null;if(!closing&&!IsDisposed){if(selected!=null&&selected.Id==item.Id)renameWallpaper.Focus();else cards.Focus();}};
+#if TEST_BUILD
+  if(TestSuppressRenameShow)return;
+#endif
+  dialog.Show(this);
+ }
+ RenameWallpaperDialog CreateRenameEditor(WallpaperItem item){
+  return new RenameWallpaperDialog(item.Name,name=>{
    WallpaperNames.Rename(library,item,name);RefreshNameLabels();RefreshSelection();RefreshSettingsState();
    homeNotice.Present("名称已保存");Write("wallpaper-renamed",new{id=item.Id,resourceId=item.ResourceId,name=item.Name,playbackRestarted=false,run=CurrentRun});
   });
-  renameWindow=dialog;dialog.FormClosed+=(s,e)=>renameWindow=null;dialog.Show(this);
  }
  void InstallCardMenu(WallpaperCard card){
   var menu=new ContextMenuStrip();menu.Items.Add("重命名",null,(s,e)=>RenameWallpaper(card.Item));card.ContextMenuStrip=menu;
