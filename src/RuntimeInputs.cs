@@ -1,6 +1,6 @@
 using System;using System.IO;using System.Diagnostics;using System.Collections.Generic;using System.Threading;using System.Runtime.InteropServices;
 
-// Only this version's explicitly registered input copies. Never enumerate logs or the library.
+// Only this store's explicitly registered input copies, including compatible prior versions. Never enumerate logs or the library.
 internal sealed class RuntimeInputLease:IDisposable {
  internal string Directory,Path;internal Dictionary<string,object> Record;internal FileStream Lock;
  public void Dispose(){if(Lock!=null){Lock.Dispose();Lock=null;}}
@@ -67,7 +67,7 @@ internal static class RuntimeInputs {
    Safe(f);string name=System.IO.Path.GetFileName(f);if(System.IO.Directory.Exists(f)||(name!="owner.json"&&name!="input.cwp"&&name!="input.mp4"&&name!="lease.lock"))throw new InvalidDataException("运行材料含未知文件，保留并拒绝清理");
   }
   var r=Common.Read(System.IO.Path.Combine(dir,"owner.json"));string id=System.IO.Path.GetFileName(dir),run=Common.S(r,"run");
-  Guid parsed;if(!Guid.TryParseExact(id,"N",out parsed)||Common.S(r,"scheme")!=Scheme||Common.S(r,"id")!=id||!Under(run,Common.LogRoot))throw new InvalidDataException("运行材料身份或日志范围不匹配");
+  Guid parsed;if(!Guid.TryParseExact(id,"N",out parsed)||Common.S(r,"scheme")!=Scheme||Common.S(r,"id")!=id||!Under(run,System.IO.Path.Combine(Common.Root,"logs")))throw new InvalidDataException("运行材料身份或日志范围不匹配");
   Safe(run);Safe(System.IO.Path.Combine(run,"request.json"));var req=Common.Read(System.IO.Path.Combine(run,"request.json"));
   if(Common.S(req,"runToken")!=id||Common.S(req,"expectedSha256")!=Common.S(r,"sha256"))throw new InvalidDataException("运行材料与请求身份不匹配");
   string inputName=InputName(r);if(inputName!=(VideoPackage.Extension(Common.S(req,"cwp"))?"input.mp4":"input.cwp")||File.Exists(System.IO.Path.Combine(dir,inputName=="input.mp4"?"input.cwp":"input.mp4")))throw new InvalidDataException("运行副本类型或唯一文件归属不匹配，保留材料");long n=Convert.ToInt64(r["reservedBytes"]);if(n<0||n>TotalLimit)throw new InvalidDataException("运行材料容量登记无效");return r;

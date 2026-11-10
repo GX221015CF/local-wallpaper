@@ -31,7 +31,7 @@ internal static class Common {
  internal static long HashCalls,HashBytes,HashTicks;
  internal static string Hash(string p){using(var s=File.OpenRead(p))using(var h=SHA256.Create()){long t=System.Diagnostics.Stopwatch.GetTimestamp();string hash=BitConverter.ToString(h.ComputeHash(s)).Replace("-","").ToLowerInvariant();System.Threading.Interlocked.Increment(ref HashCalls);System.Threading.Interlocked.Add(ref HashBytes,s.Length);System.Threading.Interlocked.Add(ref HashTicks,System.Diagnostics.Stopwatch.GetTimestamp()-t);return hash;}}
  internal static string Quote(string p){if(p.Contains("\""))throw new ArgumentException("Quote in path");return "\""+p+"\"";}
- internal static string ReadShared(string p){using(var s=new FileStream(p,FileMode.Open,FileAccess.Read,(FileShare.ReadWrite|FileShare.Delete)))using(var r=new StreamReader(s,Encoding.UTF8))return r.ReadToEnd();}
+ internal static string ReadShared(string p){using(var gate=new AtomicWriteGate(p,()=>{},System.Diagnostics.Stopwatch.StartNew()))using(var s=new FileStream(p,FileMode.Open,FileAccess.Read,(FileShare.ReadWrite|FileShare.Delete)))using(var r=new StreamReader(s,Encoding.UTF8))return r.ReadToEnd();}
  internal static Dictionary<string,object> Read(string p){return Json.Deserialize<Dictionary<string,object>>(ReadShared(p));}
  internal static Dictionary<string,object> Obj(object x){return (Dictionary<string,object>)x;}
  internal static string S(Dictionary<string,object> d,string k){return d.ContainsKey(k)?Convert.ToString(d[k]):"";}

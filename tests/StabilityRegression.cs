@@ -179,6 +179,16 @@ internal static class StabilityRegression {
     Need(Common.S(Common.Read(Path.Combine(run,"runtime-input-cleanup.json")),"state")=="reclaimed","cleanup has explicit matching result");
    }
    Need(File.Exists(source)&&Common.Hash(source)==hash,"persistent source survives failed and repeated normal runs");
+   string previousApp=Common.AppRoot;
+   try{
+    Common.AppRoot=Path.Combine(previousApp,"next-version");
+    string id=Guid.NewGuid().ToString("N"),nextRun=Path.Combine(Common.LogRoot,"run-"+id);Directory.CreateDirectory(nextRun);
+    Common.SaveNew(Path.Combine(nextRun,"request.json"),new{runToken=id,expectedSha256=hash,cwp=source,mode="preview",seconds=0,playbackPolicy="continuous"});
+    using(var lease=RuntimeInputs.Begin(nextRun,source,hash,CancellationToken.None)){
+     lease.Copy(source,CancellationToken.None);lease.End(true,false,"copy-complete","same-store-next-version");
+    }
+    Need(File.Exists(Path.Combine(LastFailureRun,"request.json")),"next version preserves original failure evidence");
+   }finally{Common.AppRoot=previousApp;}
   });
   bool passed=true;foreach(var row in results)if(!(bool)row.GetType().GetProperty("passed").GetValue(row,null))passed=false;
   Common.SaveNew(args[0],new{passed=passed,results=results,evidenceKind="TEST_BUILD actual registry writer with real isolated sharing conflict; actual frame-readiness policy with owned synthetic images; no live window/engine"});
