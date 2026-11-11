@@ -23,6 +23,7 @@ internal sealed partial class ControlWindow {
   readonly Label searchCount=new Label();
   readonly List<ListViewItem> candidateRows=new List<ListViewItem>();
   bool applyingFilter,deferFilter,copyCancelRequested;
+  string appliedQuery;
   bool scanning,copying,queueRunning,queueStop,allowClose,closeRequested;Task queueTask;string phase;int done,total,scanCachedCount;readonly Dictionary<string,int> waitingRetries=new Dictionary<string,int>();
 #if TEST_BUILD
   internal bool TestSkipInitialScan;
@@ -79,27 +80,46 @@ internal sealed partial class ControlWindow {
    if(progressState.Phase==ImportProgressPhase.Cancelling)return;
    progressState.Checking(done,total,scanCachedCount,current);PresentProgress();
   }
-  void ApplyFilter() {using(performance.Measure("ui.filter")){
-   if(deferFilter||IsDisposed)return;
-   string selectedKey=Selected==null?null:ImportCandidateSearch.Key(Selected);
-   var visible=candidateRows.Where(row=>ImportCandidateSearch.Matches((ImportCandidate)row.Tag,candidateSearch.Text,owner.library.Doc.Items)).ToArray();
-   var current=list.Items.Cast<ListViewItem>().ToArray();
-   if(!current.SequenceEqual(visible)){
-    ListViewItem top=list.IsHandleCreated&&list.Items.Count>0?list.TopItem:null;
-    applyingFilter=true;list.BeginUpdate();performance.ListRebuilds++;
-    try {
-     var wanted=new HashSet<ListViewItem>(visible);
-     foreach(var row in current)if(!wanted.Contains(row))list.Items.Remove(row);
-     for(int index=0;index<visible.Length;index++)if(visible[index].ListView!=list)list.Items.Insert(index,visible[index]);
-     var next=visible.FirstOrDefault(row=>ImportCandidateSearch.Key((ImportCandidate)row.Tag)==selectedKey)??visible.FirstOrDefault();
-     if(next!=null&&!next.Selected){next.Selected=true;next.Focused=true;}
-     if(top!=null&&top.ListView==list)list.TopItem=top;
-    }finally{list.EndUpdate();applyingFilter=false;}
+  void ApplyFilter() {
+   using(performance.Measure("ui.filter")) {
+    if(deferFilter||IsDisposed)return;
+    string query=candidateSearch.Text.Trim();
+    bool queryChanged=!String.Equals(appliedQuery,query,StringComparison.OrdinalIgnoreCase);
+    string selectedKey=Selected==null?null:ImportCandidateSearch.Key(Selected);
+    var visible=candidateRows.Where(row=>ImportCandidateSearch.Matches((ImportCandidate)row.Tag,query,owner.library.Doc.Items)).ToArray();
+    var current=list.Items.Cast<ListViewItem>().ToArray();
+    if(!current.SequenceEqual(visible)) {
+     ListViewItem top=list.IsHandleCreated&&list.Items.Count>0?list.TopItem:null;
+     applyingFilter=true;
+     performance.ListRebuilds++;
+     try {
+      // A complete membership submission resets the native origin after a shrinking filter.
+      // Keep the existing row objects, text and image keys, and restore view state after EndUpdate.
+      list.BeginUpdate();
+      try {
+       list.Items.Clear();
+       list.Items.AddRange(visible);
+      } finally {
+       list.EndUpdate();
+      }
+      var next=visible.FirstOrDefault(row=>ImportCandidateSearch.Key((ImportCandidate)row.Tag)==selectedKey)??visible.FirstOrDefault();
+      if(next!=null&&!next.Selected) {
+       next.Selected=true;
+       next.Focused=true;
+      }
+      if(!queryChanged&&top!=null&&top.ListView==list)list.TopItem=top;
+      if(queryChanged&&next!=null)next.EnsureVisible();
+     } finally {
+      applyingFilter=false;
+     }
+    }
+    appliedQuery=query;
+    string summary=visible.Length==0?"没有匹配候选":"显示 "+visible.Length+" / "+candidateRows.Count+" 项";
+    if(searchCount.Text!=summary)searchCount.Text=summary;
+    if(visible.Length>0)performance.Mark("first-rows");
+    UpdateSelection();
    }
-   string summary=visible.Length==0?"没有匹配候选":"显示 "+visible.Length+" / "+candidateRows.Count+" 项";
-   if(searchCount.Text!=summary)searchCount.Text=summary;
-   if(visible.Length>0)performance.Mark("first-rows");UpdateSelection();
-  }}
+  }
   ImportCandidate Selected{get{return list.SelectedItems.Count==1?list.SelectedItems[0].Tag as ImportCandidate:null;}}
   string Hash(ImportCandidate c){return c==null||c.Check==null?null:c.Check.Sha256;}
   WallpaperItem Registered(ImportCandidate c){var hash=Hash(c);return !PackageAnalysis.HashText(hash)?null:owner.library.Doc.Items.FirstOrDefault(x=>x.RegisteredSha256==hash);}
