@@ -2,8 +2,8 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 if(!(Test-Path -LiteralPath (Join-Path $root '.owned-build-stage'))){throw 'Use scripts/Build-Delivery.ps1 to build in an isolated stage.'}
 $outDir = Join-Path $root 'offline-package'
-$packageName = 'LocalWallpaper-0.1.37-import-progress-internal-r37.zip'
-$manifestName = 'manifest-import-progress-internal-r37.json'
+$packageName = 'LocalWallpaper-0.1.38-import-response-internal-r38.zip'
+$manifestName = 'manifest-import-response-internal-r38.json'
 $package = Join-Path $outDir $packageName
 $outerManifest = Join-Path $outDir $manifestName
 if (Test-Path -LiteralPath $package) { throw 'Existing R30 package is preserved.' }
@@ -27,7 +27,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $root 'build') -Destination $stage -Recurse
     New-Item -ItemType Directory -Path (Join-Path $stage 'rules') | Out-Null
     foreach ($name in @('runtime-components.json', 'v3-structure-families.json')) { Copy-Item -LiteralPath (Join-Path $root ('rules\' + $name)) -Destination (Join-Path $stage 'rules') }
-    foreach ($relative in @('README.md', 'docs\video-tray-r25.md', 'docs\support-r25.md', 'docs\runtime-retention-r24.md', 'docs\cover-snapshot-r29.md', 'docs\import-video-cover-r30.md', 'docs\personal-experience-r31.md', 'docs\stability-r32.md', 'docs\material-settings-rename-r33.md', 'docs\refinement-r34.md', 'docs\space-layout-r35.md', 'docs\import-refinement-r36.md', 'docs\import-progress-r37.md')) {
+    foreach ($relative in @('README.md', 'docs\video-tray-r25.md', 'docs\support-r25.md', 'docs\runtime-retention-r24.md', 'docs\cover-snapshot-r29.md', 'docs\import-video-cover-r30.md', 'docs\personal-experience-r31.md', 'docs\stability-r32.md', 'docs\material-settings-rename-r33.md', 'docs\refinement-r34.md', 'docs\space-layout-r35.md', 'docs\import-refinement-r36.md', 'docs\import-progress-r37.md', 'docs\import-response-r38.md')) {
         Copy-Item -LiteralPath (Join-Path $root $relative) -Destination $stage
     }
     if (Test-Path -LiteralPath (Join-Path $stage 'build\data-location.json')) { throw 'Package unexpectedly contains a user-specific binding.' }
@@ -42,9 +42,9 @@ try {
     })
     $packageManifest = [ordered]@{
         schemaVersion = 1
-        package = 'LocalWallpaper-0.1.37-import-progress-internal-r37'
-        classification = '不含外部运行组件；第三方本机配合使用条件尚未确认；既有本机CWP观察保留；R28本机402242窗口桌面与托盘用户反馈已收尾；R29手动截图本机通过；R30导入前图片已本机观察；R31实际使用已发生；R32已收到正常反馈；R33首次宿主目录提交失败保留；R34界面已有用户反馈，317495首次预览结果未明确；R35已有界面反馈；R36已有真实导入窗口反馈；R37进度观感待差异体验，持久缓存已跨进程核验；限内部验证'
-        version = '0.1.37-import-progress-internal-r37'
+        package = 'LocalWallpaper-0.1.38-import-response-internal-r38'
+        classification = '不含外部运行组件；第三方本机配合使用条件尚未确认；既有本机CWP观察保留；R28本机402242窗口桌面与托盘用户反馈已收尾；R29手动截图本机通过；R30导入前图片已本机观察；R31实际使用已发生；R32已收到正常反馈；R33首次宿主目录提交失败保留；R34界面已有用户反馈，317495首次预览结果未明确；R35已有界面反馈；R36已有真实导入窗口反馈；R37已收到导入窗口卡顿反馈；R38导入响应有隔离前后计量，真实手感待体验；持久缓存跨进程结果保持；限内部验证'
+        version = '0.1.38-import-response-internal-r38'
         entry = 'build/LocalWallpaper.exe'
         dataFormat = @{ min = 1; max = 1 }
         bindingPolicy = '首次使用时由用户选择数据位置；本包不包含用户绑定'
@@ -67,7 +67,7 @@ try {
     $zipHash = (Get-FileHash -LiteralPath $tempZip -Algorithm SHA256).Hash.ToLowerInvariant()
     $receipt = [ordered]@{
         schemaVersion = 1
-        revision = 'import-progress-internal-r37'
+        revision = 'import-response-internal-r38'
         packagePath = ('offline-package/' + $packageName)
         bytes = (Get-Item -LiteralPath $tempZip).Length
         sha256 = $zipHash

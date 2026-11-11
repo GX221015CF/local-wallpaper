@@ -1,6 +1,6 @@
 param(
-    [string]$PackagePath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'offline-package\LocalWallpaper-0.1.37-import-progress-internal-r37.zip'),
-    [string]$ManifestPath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'offline-package\manifest-import-progress-internal-r37.json'),
+    [string]$PackagePath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'offline-package\LocalWallpaper-0.1.38-import-response-internal-r38.zip'),
+    [string]$ManifestPath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'offline-package\manifest-import-response-internal-r38.json'),
     [string]$EvidencePath
 )
 $ErrorActionPreference = 'Stop'
@@ -8,8 +8,8 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $package = [IO.Path]::GetFullPath($PackagePath)
 $manifestFile = [IO.Path]::GetFullPath($ManifestPath)
 $receipt = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
-    if ($receipt.schemaVersion -ne 1 -or $receipt.revision -ne 'import-progress-internal-r37') { throw 'Unsupported outer manifest.' }
-if ([IO.Path]::GetFileName($package) -cne 'LocalWallpaper-0.1.37-import-progress-internal-r37.zip') { throw 'Unexpected package name.' }
+    if ($receipt.schemaVersion -ne 1 -or $receipt.revision -ne 'import-response-internal-r38') { throw 'Unsupported outer manifest.' }
+if ([IO.Path]::GetFileName($package) -cne 'LocalWallpaper-0.1.38-import-response-internal-r38.zip') { throw 'Unexpected package name.' }
 $info = Get-Item -LiteralPath $package
 $outerHash = (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash.ToLowerInvariant()
 if ($info.Length -ne [long]$receipt.bytes -or $outerHash -cne [string]$receipt.sha256) { throw 'Outer package size/hash mismatch.' }
@@ -24,7 +24,7 @@ try {
     if ($entries.Count -ne [int]$receipt.contentCount -or !$entries.ContainsKey('package-manifest.json')) { throw 'ZIP member count or package manifest mismatch.' }
     $stream = $entries['package-manifest.json'].Open()
     try { $reader = New-Object IO.StreamReader($stream); $inner = $reader.ReadToEnd() | ConvertFrom-Json; $reader.Dispose() } finally { $stream.Dispose() }
-    if ($inner.package -cne 'LocalWallpaper-0.1.37-import-progress-internal-r37' -or $inner.entry -cne 'build/LocalWallpaper.exe') { throw 'Embedded package identity or entry mismatch.' }
+    if ($inner.package -cne 'LocalWallpaper-0.1.38-import-response-internal-r38' -or $inner.entry -cne 'build/LocalWallpaper.exe') { throw 'Embedded package identity or entry mismatch.' }
     if ($inner.containsFormalUserData -or $inner.containsCwp -or $inner.containsDiagnostics -or $receipt.formalUserDataIncluded) { throw 'Forbidden user data flag in package.' }
     $expected = @{}
     foreach ($file in $inner.files) {
@@ -39,7 +39,7 @@ try {
         if ($hash -cne [string]$file.sha256) { throw "Package member hash mismatch: $name" }
     }
     foreach ($name in $entries.Keys) { if ($name -cne 'package-manifest.json' -and !$expected.ContainsKey($name)) { throw "Unlisted ZIP member: $name" } }
-    foreach ($required in @('build/LocalWallpaper.exe','build/LocalWallpaperLauncher.exe','build/WallpaperLocalTool.exe','build/WallpaperVersionTool.exe','build/runtime-manifest.json','rules/runtime-components.json','rules/v3-structure-families.json','README.md','video-tray-r25.md','support-r25.md','runtime-retention-r24.md','cover-snapshot-r29.md','import-video-cover-r30.md','personal-experience-r31.md','stability-r32.md','material-settings-rename-r33.md','refinement-r34.md','space-layout-r35.md','import-refinement-r36.md','import-progress-r37.md')) {
+    foreach ($required in @('build/LocalWallpaper.exe','build/LocalWallpaperLauncher.exe','build/WallpaperLocalTool.exe','build/WallpaperVersionTool.exe','build/runtime-manifest.json','rules/runtime-components.json','rules/v3-structure-families.json','README.md','video-tray-r25.md','support-r25.md','runtime-retention-r24.md','cover-snapshot-r29.md','import-video-cover-r30.md','personal-experience-r31.md','stability-r32.md','material-settings-rename-r33.md','refinement-r34.md','space-layout-r35.md','import-refinement-r36.md','import-progress-r37.md','import-response-r38.md')) {
         if (!$entries.ContainsKey($required)) { throw "Required package file missing: $required" }
     }
     foreach ($forbidden in @('build/data-location.json')) { if ($entries.ContainsKey($forbidden)) { throw "Forbidden per-user binding present: $forbidden" } }
