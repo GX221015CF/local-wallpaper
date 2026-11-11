@@ -9,7 +9,7 @@ foreach($rel in @('build/LocalWallpaperLauncher.exe','build/LocalWallpaper.exe',
 }
 $out=Join-Path $root 'build/release.json'
 if(Test-Path -LiteralPath $out){throw 'Release manifest already exists; old build preserved'}
-$r=@{SchemaVersion=2;MinDataFormat=1;MaxDataFormat=1;Version='0.1.36-import-refinement-internal-r36';BindingPolicy='per-user-data-location.json-not-in-release-identity';ExternalRuntime='user-selected local install root; identity checked against pinned 23-component contract; no external binaries in package';Files=$files}
+$r=@{SchemaVersion=2;MinDataFormat=1;MaxDataFormat=1;Version='0.1.37-import-progress-internal-r37';BindingPolicy='per-user-data-location.json-not-in-release-identity';ExternalRuntime='user-selected local install root; identity checked against pinned 23-component contract; no external binaries in package';Files=$files}
 $tmp=$out+'.tmp'
 try{[IO.File]::WriteAllText($tmp,($r|ConvertTo-Json -Depth 6),(New-Object Text.UTF8Encoding($false)));[IO.File]::Move($tmp,$out)}finally{if(Test-Path -LiteralPath $tmp){Remove-Item -LiteralPath $tmp}}
 & (Join-Path $root 'build/WallpaperVersionTool.exe') verify $root

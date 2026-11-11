@@ -6,7 +6,9 @@ internal sealed partial class ControlWindow {
  async Task StopImport(){var d=importDialog;if(d!=null&&!d.IsDisposed)await d.StopQueue();if(importOperation!=null){await importOperation.Stop();Write("local-import-close-clean",new{operation=importOperation.Folder,busy=importOperation.Busy});}}
  sealed class ImportDialog:MaterialDialog {
   readonly ControlWindow owner;readonly ImageList thumbs=new ImageList{ImageSize=new Size(64,40),ColorDepth=ColorDepth.Depth32Bit};
-  internal readonly ListView list=new ListView();readonly PictureBox cover=new PictureBox();internal readonly TextBox note=new TextBox();internal readonly Label status=new Label();internal readonly ProgressBar progress=new ProgressBar();
+  internal readonly ListView list=new ListView();readonly PictureBox cover=new PictureBox();internal readonly TextBox note=new TextBox();internal readonly Label status=new Label();internal readonly MaterialProgress progress=new MaterialProgress();
+  readonly ImportProgressState progressState=new ImportProgressState();
+  TableLayoutPanel importLayout;bool sizingProgress;
   internal readonly Button import=new SoftButton(),analyze=new SoftButton(),cancel=new SoftButton(),refresh=new SoftButton();readonly ToolTip guidance=new ToolTip{AutoPopDelay=15000};
   readonly TextBox candidateSearch=new TextBox();
   readonly Label searchCount=new Label();
@@ -15,12 +17,13 @@ internal sealed partial class ControlWindow {
   bool scanning,copying,queueRunning,queueStop,allowClose,closeRequested;Task queueTask;string phase;int done,total,scanCachedCount;readonly Dictionary<string,int> waitingRetries=new Dictionary<string,int>();
 #if TEST_BUILD
   internal bool TestSkipInitialScan;
+  internal Action<ImportCandidate> TestQueueResult;
   internal bool TestQueueRunning{get{return queueRunning;}}
   internal ListViewItem TestAddCandidate(ImportCandidate c){return AddCandidate(c);}
   internal Task TestRunQueue(){queueStop=false;queueTask=RunQueue();return queueTask;}
 #endif
   internal ImportDialog(ControlWindow window){owner=window;Text="导入联想已下载壁纸";Font=window.Font;BackColor=Theme.Canvas;StartPosition=FormStartPosition.CenterParent;AutoScaleMode=AutoScaleMode.Dpi;ClientSize=new Size(1140,650);MinimumSize=new Size(1040,600);
-   var root=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(22),RowCount=5,ColumnCount=1};root.RowStyles.Add(new RowStyle(SizeType.Absolute,82));root.RowStyles.Add(new RowStyle(SizeType.Percent,100));root.RowStyles.Add(new RowStyle(SizeType.Absolute,52));root.RowStyles.Add(new RowStyle(SizeType.Absolute,12));root.RowStyles.Add(new RowStyle(SizeType.Absolute,56));Controls.Add(root);
+   var root=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(22),RowCount=5,ColumnCount=1};importLayout=root;root.RowStyles.Add(new RowStyle(SizeType.Absolute,82));root.RowStyles.Add(new RowStyle(SizeType.Percent,100));root.RowStyles.Add(new RowStyle(SizeType.Absolute,52));root.RowStyles.Add(new RowStyle(SizeType.Absolute,0));root.RowStyles.Add(new RowStyle(SizeType.Absolute,56));Controls.Add(root);
    var searchRow=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2};searchRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,60));searchRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,40));
    searchRow.Controls.Add(new Label{Text="检查通过后明确导入。图片用于辨认，播放仍需预览确认。",Dock=DockStyle.Fill,ForeColor=Theme.Muted},0,0);
    var searchPanel=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=3};searchPanel.RowStyles.Add(new RowStyle(SizeType.Absolute,20));searchPanel.RowStyles.Add(new RowStyle(SizeType.Absolute,28));searchPanel.RowStyles.Add(new RowStyle(SizeType.Percent,100));
@@ -31,17 +34,38 @@ internal sealed partial class ControlWindow {
    list.Dock=DockStyle.Fill;list.View=View.Details;list.SmallImageList=thumbs;list.FullRowSelect=true;list.MultiSelect=false;list.HideSelection=false;list.ShowItemToolTips=true;
    list.Columns.Add("名称 / ID",210);list.Columns.Add("大小",86);list.Columns.Add("资源",82);list.Columns.Add("检查",90);list.Columns.Add("封面",110);list.Resize+=(s,e)=>{list.Columns[0].Width=Math.Max(180,list.ClientSize.Width-86-82-90-110-SystemInformation.VerticalScrollBarWidth-4);};body.Controls.Add(list,0,0);
    var side=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=2};side.RowStyles.Add(new RowStyle(SizeType.Percent,48));side.RowStyles.Add(new RowStyle(SizeType.Percent,52));cover.Dock=DockStyle.Fill;cover.SizeMode=PictureBoxSizeMode.Zoom;cover.BackColor=Color.FromArgb(237,239,243);note.Dock=DockStyle.Fill;note.ReadOnly=true;note.Multiline=true;note.ScrollBars=ScrollBars.Vertical;note.BorderStyle=BorderStyle.None;note.BackColor=Theme.Canvas;note.ForeColor=Theme.Muted;side.Controls.Add(cover,0,0);side.Controls.Add(note,0,1);body.Controls.Add(side,1,0);
-   status.Dock=DockStyle.Fill;status.Padding=new Padding(0,8,0,0);status.Text="正在读取本地候选…";root.Controls.Add(status,0,2);progress.Dock=DockStyle.Fill;root.Controls.Add(progress,0,3);
+   status.Dock=DockStyle.Fill;status.Padding=new Padding(0,8,0,0);status.Text="读取候选后选择壁纸，可主动导入。";status.AutoEllipsis=true;status.UseMnemonic=false;root.Controls.Add(status,0,2);progress.Dock=DockStyle.Fill;root.Controls.Add(progress,0,3);status.Margin=Padding.Empty;progress.Margin=Padding.Empty;Resize+=(s,e)=>LayoutProgress();status.FontChanged+=(s,e)=>LayoutProgress();
    var buttons=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.RightToLeft,Padding=new Padding(0,4,0,0)};Configure(import,"导入所选壁纸",150);((SoftButton)import).Primary=true;Configure(cancel,"关闭",100);Configure(refresh,"刷新候选",110);Configure(analyze,"重新检查此文件",150);buttons.Controls.Add(import);buttons.Controls.Add(cancel);buttons.Controls.Add(refresh);buttons.Controls.Add(analyze);var help=new SoftButton{Text="提交给Agent",Width=120,Height=38};help.Click+=(s,e)=>owner.OpenFaultHandoff();buttons.Controls.Add(help);root.Controls.Add(buttons,0,4);
-   list.SelectedIndexChanged+=(s,e)=>{if(!applyingFilter)UpdateSelection();};import.Click+=async(s,e)=>await ImportSelected();refresh.Click+=async(s,e)=>await Scan();analyze.Click+=async(s,e)=>await AnalyzeSelected();cancel.Click+=async(s,e)=>{if(scanning||copying){if(copying)copyCancelRequested=true;if(owner.importOperation!=null)owner.importOperation.Cancel();status.Text="正在取消并清理本次任务…";}else if(queueRunning){await StopQueue();status.Text="检查已取消；没有导入，可选中目标后重新检查。";}else Close();};
+   list.SelectedIndexChanged+=(s,e)=>{if(!applyingFilter)UpdateSelection();};import.Click+=async(s,e)=>await ImportSelected();refresh.Click+=async(s,e)=>await Scan();analyze.Click+=async(s,e)=>await AnalyzeSelected();cancel.Click+=async(s,e)=>{if(scanning||copying){if(copying)copyCancelRequested=true;if(owner.importOperation!=null)owner.importOperation.Cancel();progressState.Cancelling();PresentProgress();}else if(queueRunning){await StopQueue();}else Close();};
    guidance.SetToolTip(analyze,"只重新检查所选文件，其他候选不重做；不会导入或播放。未知结构需补充规则，重复检查不会增加支持。");guidance.SetToolTip(import,"只在本文件入库前检查通过后保存；复制中仍复核源文件、完整哈希及管理副本。不会自动播放。");
    Shown+=async(s,e)=>{
 #if TEST_BUILD
     if(TestSkipInitialScan)return;
 #endif
     await Scan();};
-   FormClosing+=async(s,e)=>{if(allowClose)return;if(scanning||copying||queueRunning){e.Cancel=true;if(closeRequested)return;closeRequested=true;queueStop=true;if(owner.importOperation!=null)owner.importOperation.Cancel();await StopQueue();if(owner.importOperation!=null)await owner.importOperation.Stop();if(!IsDisposed){allowClose=true;Close();}}};
+   FormClosing+=async(s,e)=>{if(allowClose)return;if(scanning||copying||queueRunning){e.Cancel=true;if(closeRequested)return;closeRequested=true;progressState.Cancelling();PresentProgress();queueStop=true;if(owner.importOperation!=null)owner.importOperation.Cancel();await StopQueue();if(owner.importOperation!=null)await owner.importOperation.Stop();if(!IsDisposed){allowClose=true;Close();}}};
    Disposed+=(s,e)=>{if(cover.Image!=null)cover.Image.Dispose();thumbs.Dispose();guidance.Dispose();};UpdateSelection();
+  }
+  void PresentProgress() {
+   if(IsDisposed)return;
+   status.Text=progressState.Text;status.AccessibleDescription=progressState.Text;
+   guidance.SetToolTip(status,progressState.Text);progress.Present(progressState);LayoutProgress();
+   owner.Write("import-progress",new{phase=progressState.Phase.ToString(),completed=progressState.Completed,total=progressState.Total,indeterminate=progressState.Indeterminate,text=progressState.Text});
+  }
+  void LayoutProgress() {
+   if(sizingProgress||importLayout==null)return;
+   sizingProgress=true;
+   try {
+    float scale;using(var graphics=CreateGraphics())scale=graphics.DpiX/96f;
+    status.Padding=new Padding(0,(int)(8*scale),0,(int)(6*scale));
+    int width=Math.Max(1,importLayout.ClientSize.Width-importLayout.Padding.Horizontal);
+    importLayout.RowStyles[2].Height=Math.Max((int)(42*scale),HomeTypography.WrappedHeight(status.Text,status.Font,width,2)+status.Padding.Vertical);
+    importLayout.RowStyles[3].Height=progress.TrackVisible?(int)(22*scale):0;
+   }finally{sizingProgress=false;}
+  }
+  void ShowQueueProgress(string current) {
+   if(progressState.Phase==ImportProgressPhase.Cancelling)return;
+   progressState.Checking(done,total,scanCachedCount,current);PresentProgress();
   }
   void ApplyFilter() {
    if(deferFilter||IsDisposed)return;
@@ -64,23 +88,79 @@ internal sealed partial class ControlWindow {
   internal string CandidateRowState(ImportCandidate c){switch(c.Check==null?"queued":c.Check.State){case "checking":return "检查中";case "passed":return "通过";case "unknown":return "结构未知";case "failed":return "检查失败";case "cancelled":return "已取消";case "waiting":return "等待文件稳定";default:return "排队";}}
   internal string CoverState(ImportCandidate c){if(c.Cover!=null&&c.Check!=null&&c.Check.CoverSha256!=null)return c.Check.CoverKind==PreviewCovers.Kind?"预览截图":c.Check.CoverKind==VideoCovers.Kind?"视频画面":"真实图片";if(c.Check==null||c.Check.State=="queued")return "排队读取";if(c.Check.State=="checking")return c.Check.Phase!=null&&c.Check.Phase.Contains("封面")?"读取中":"等待检查";if(c.Check.State=="cancelled")return "已取消";return c.Check.CoverReason!=null&&c.Check.CoverReason.Contains("失败")?"读取失败":"无可靠图片";}
   internal string CandidateState(ImportCandidate c){if(c==null)return "选择候选即可查看结果，无需逐项开始检查。";string state=CandidateRowState(c);if(c.Check==null||c.Check.State=="queued")return "已自动排队；检查与封面读取会逐项进行。";if(c.Check.State=="checking")return "正在检查："+c.Check.Phase;if(c.Check.State=="unknown")return "结构未知："+c.Check.Reason+"。保留候选与身份记录；当前窗口不能导入，需开发补充解析器或规则，重复检查不会增加支持。";if(c.Check.State=="passed")return "入库前检查通过，可主动导入。"+c.Check.Reason;return state+"："+c.Check.Reason+"\n发生阶段："+c.Check.Phase+"\n可用“重新检查此文件”重试。";}
-  void ControlsState(){list.Enabled=candidateSearch.Enabled=!copying&&!closeRequested;((SoftButton)import).Busy=copying;((SoftButton)refresh).Busy=scanning;((SoftButton)analyze).Busy=queueRunning;import.Enabled=!scanning&&!copying&&!closeRequested&&CandidateChecks.Passed(Selected);import.Text=copying?"正在导入…":"导入所选壁纸";analyze.Enabled=!scanning&&!copying&&!queueRunning&&!closeRequested&&Selected!=null;refresh.Enabled=!scanning&&!copying&&!queueRunning&&!closeRequested;cancel.Text=copying?"取消导入":scanning||queueRunning?"取消检查":"关闭";progress.Style=scanning||queueRunning?ProgressBarStyle.Marquee:ProgressBarStyle.Blocks;}
+  void ControlsState(){list.Enabled=candidateSearch.Enabled=!copying&&!closeRequested;((SoftButton)import).Busy=copying;((SoftButton)refresh).Busy=scanning;((SoftButton)analyze).Busy=queueRunning;import.Enabled=!scanning&&!copying&&!closeRequested&&CandidateChecks.Passed(Selected);import.Text=copying?"正在导入…":"导入所选壁纸";analyze.Enabled=!scanning&&!copying&&!queueRunning&&!closeRequested&&Selected!=null;refresh.Enabled=!scanning&&!copying&&!queueRunning&&!closeRequested;cancel.Text=copying?"取消导入":scanning||queueRunning?"取消检查":"关闭";}
   void UpdateRow(ListViewItem row){var c=(ImportCandidate)row.Tag;string alias=ImportCandidateSearch.Aliases(c,owner.library.Doc.Items).FirstOrDefault(name=>name!=c.Name);row.Text=c.Name+" · "+ResourcePresentation.Id(c.Id,null)+(alias==null?"":"（库内名："+alias+"）");string[] values={(c.Bytes/1048576.0).ToString("F1")+" MB",ResourceState(c),CandidateRowState(c),CoverState(c)};for(int i=0;i<values.Length;i++)row.SubItems[i+1].Text=values[i];row.ToolTipText=ResourcePresentation.Id(c.Id,null)+"\n"+c.Name+"\n库内名称："+String.Join("、",ImportCandidateSearch.Aliases(c,owner.library.Doc.Items))+"\n"+CandidateState(c);}
   void Thumbnail(ListViewItem row){var c=(ImportCandidate)row.Tag;string key=c.Source;row.ImageKey="";if(c.Cover==null)return;try{using(var im=WallpaperLibrary.LoadCover(new WallpaperItem{CoverPath=c.Cover})){if(im!=null){int existing=thumbs.Images.IndexOfKey(key);if(existing>=0){thumbs.Images[existing]=im;thumbs.Images.SetKeyName(existing,key);}else thumbs.Images.Add(key,im);row.ImageKey=key;}}}catch{}}
   ListViewItem AddCandidate(ImportCandidate c){var row=new ListViewItem(new[]{"","","","",""}){Tag=c};candidateRows.Add(row);UpdateRow(row);Thumbnail(row);if(!deferFilter)ApplyFilter();return row;}
   internal void UpdateSelection(){var c=Selected;ControlsState();if(cover.Image!=null){cover.Image.Dispose();cover.Image=null;}if(c!=null&&c.Cover!=null)try{using(var im=WallpaperLibrary.LoadCover(new WallpaperItem{CoverPath=c.Cover})){if(im!=null)cover.Image=new Bitmap(im);}}catch{}note.Text=c==null?CandidateState(null):(ResourcePresentation.Id(c.Id,null)+"\n名称："+(c.NameSource==null?"暂未取得官方名称":"已保存官方本地名称")+"\n资源："+ResourceState(c)+"\n检查："+CandidateRowState(c)+"\n封面："+CoverState(c)+"\n\n"+CandidateState(c)+"\n封面说明："+(c.CoverReason??"后台处理尚未完成")+"\n\nSHA-256："+(Hash(c)??"尚未完成")+"\n首次发现："+c.FirstDiscoveredAt+"\n记录更新时间："+c.RecordUpdatedAt+"\n以上不是官方下载时间。\n视频会自动截取开头可识别的一帧；未取得图片时会说明原因。").Replace("\n","\r\n");}
-  internal async Task StopQueue(){queueStop=true;if(queueRunning&&owner.importOperation!=null)owner.importOperation.Cancel();foreach(ListViewItem row in candidateRows){var c=(ImportCandidate)row.Tag;if(c.Check==null||c.Check.State=="queued"||c.Check.State=="waiting"){c.Check=new CandidateCheckResult{State="cancelled",Phase="排队",Reason="用户取消本次队列；未导入"};UpdateRow(row);}}var task=queueTask;if(task!=null)await task;}
+  internal async Task StopQueue(){queueStop=true;if(queueRunning){progressState.Cancelling();PresentProgress();}if(queueRunning&&owner.importOperation!=null)owner.importOperation.Cancel();foreach(ListViewItem row in candidateRows){var c=(ImportCandidate)row.Tag;if(c.Check==null||c.Check.State=="queued"||c.Check.State=="waiting"){c.Check=new CandidateCheckResult{State="cancelled",Phase="排队",Reason="用户取消本次队列；未导入"};UpdateRow(row);}}var task=queueTask;if(task!=null)await task;}
   async Task RunOne(ListViewItem row,bool force){var c=(ImportCandidate)row.Tag;phase="核对本地记录";c.Check=new CandidateCheckResult{State="checking",Phase=phase};c.Cover=null;c.CoverReason="后台读取中";UpdateRow(row);UpdateSelection();owner.Write("candidate-check-start",new{id=c.Id,name=c.Name,source=c.Source,force=force,autoImport=false});
-   try{var data=await owner.ImportJob(force?"recheck":"check",c,(p,b,t)=>{if(IsDisposed)return;phase=p;c.Check.Phase=p;status.Text="正在检查 "+(done+1)+" / "+total+" 项 · "+c.Name+" · "+p;UpdateRow(row);if(Object.ReferenceEquals(c,Selected))UpdateSelection();});row.Tag=Common.Json.Deserialize<ImportCandidate>(Common.Json.Serialize(data["candidate"]));OfficialNameStore.ApplySaved(new List<ImportCandidate>{(ImportCandidate)row.Tag});}
+   try{var data=await owner.ImportJob(force?"recheck":"check",c,(p,b,t)=>{if(IsDisposed)return;phase=p;c.Check.Phase=p;ShowQueueProgress(c.Name+" · "+p);UpdateRow(row);if(Object.ReferenceEquals(c,Selected))UpdateSelection();});row.Tag=Common.Json.Deserialize<ImportCandidate>(Common.Json.Serialize(data["candidate"]));OfficialNameStore.ApplySaved(new List<ImportCandidate>{(ImportCandidate)row.Tag});
+#if TEST_BUILD
+   if(TestQueueResult!=null)TestQueueResult((ImportCandidate)row.Tag);
+#endif
+}
    catch(OperationCanceledException){c.Check.State="cancelled";c.Check.Reason="已取消；未导入";c.Check.Phase=phase;}
    catch(Exception ex){c.Check.State="failed";c.Check.Reason=ex.Message;c.Check.Phase=phase;}
    finally{if(!IsDisposed){UpdateRow(row);Thumbnail(row);ApplyFilter();var result=(ImportCandidate)row.Tag;if(result.Check.State=="failed")owner.RecordFault("check","检查本地候选",result.Check.Phase,result.Check.Reason,result,()=>{if(!IsDisposed&&!closeRequested&&!queueRunning&&!copying){row.Selected=true;var ignored=AnalyzeSelected();}});owner.Write("candidate-check-result",new{id=result.Id,name=result.Name,source=result.Source,state=result.Check.State,reason=result.Check.Reason,stage=result.Check.Phase,sha256=result.Check.Sha256,cacheHit=result.Check.CacheHit,cacheReason=result.Check.CacheReason,cacheMissReason=result.CacheDisposition,hashedBytes=result.Check.HashedBytes,coverReads=result.Check.CoverReads,coverDecodedBytes=result.Check.CoverDecodedBytes,videoFrameAttempts=result.Check.VideoFrameAttempts,videoFrameImageBytes=result.Check.VideoFrameImageBytes,videoTransformHashedBytes=result.Check.VideoTransformHashedBytes,coverValidationBytes=result.Check.CoverValidationBytes,hashMilliseconds=result.Check.HashMilliseconds,structureMilliseconds=result.Check.StructureMilliseconds,coverMilliseconds=result.Check.CoverMilliseconds,cover=result.Check.CoverMember,coverSha256=result.Check.CoverSha256,autoImport=false,autoPlay=false});}}}
-  async Task RunQueue(){queueRunning=true;done=0;var pending=candidateRows.Where(r=>{var c=(ImportCandidate)r.Tag;return c.Check==null||c.Check.State=="queued"||c.Check.State=="waiting"||c.Check.CoverRefreshDue;}).ToList();total=pending.Count;ControlsState();try{for(int i=0;i<pending.Count;i++){if(queueStop||owner.closing||closeRequested)break;var row=pending[i];await RunOne(row,false);done++;var c=(ImportCandidate)row.Tag;int retries;waitingRetries.TryGetValue(c.Source,out retries);if(c.Check.State=="waiting"&&retries<2&&!queueStop){waitingRetries[c.Source]=retries+1;await Task.Delay(2100);if(!queueStop)pending.Add(row);total=pending.Count;}}}finally{queueRunning=false;if(!IsDisposed){UpdateSelection();status.Text=queueStop?"已取消本次检查；未导入。可选择目标重新检查。":"已复用 "+scanCachedCount+" 项检查结果 · 本次处理 "+done+" 项 · 选择通过的条目可导入";owner.Write("candidate-queue-finished",new{completed=done,scheduled=total,cancelled=queueStop,autoImport=false,autoPlay=false});}}}
+  async Task RunQueue() {
+   queueRunning=true;done=0;
+   var pending=candidateRows.Where(row=>{var c=(ImportCandidate)row.Tag;return c.Check==null||c.Check.State=="queued"||c.Check.State=="waiting"||c.Check.CoverRefreshDue;}).ToList();
+   total=pending.Count;ControlsState();ShowQueueProgress(null);
+   try {
+    for(int index=0;index<pending.Count;index++) {
+     if(queueStop||owner.closing||closeRequested)break;
+     var row=pending[index];ShowQueueProgress(((ImportCandidate)row.Tag).Name);
+     await RunOne(row,false);done++;
+     var candidate=(ImportCandidate)row.Tag;int retries;waitingRetries.TryGetValue(candidate.Source,out retries);
+     if(candidate.Check.State=="waiting"&&retries<2&&!queueStop) {
+      waitingRetries[candidate.Source]=retries+1;pending.Add(row);total=pending.Count;
+      ShowQueueProgress("等待文件稳定，已追加一次检查");
+      await Task.Delay(2100);
+     } else ShowQueueProgress(null);
+    }
+   } finally {
+    queueRunning=false;
+    if(!IsDisposed) {
+     UpdateSelection();
+     int failed=candidateRows.Count(row=>((ImportCandidate)row.Tag).Check!=null&&((ImportCandidate)row.Tag).Check.State=="failed");
+     int unknown=candidateRows.Count(row=>((ImportCandidate)row.Tag).Check!=null&&((ImportCandidate)row.Tag).Check.State=="unknown");
+     string result=queueStop?"检查已取消 · 已处理 "+done+" / "+total+" 次 · 可重新检查所选目标"
+      :"检查结束 · 已复用 "+scanCachedCount+" 项 · 本次处理 "+done+" 次"+(failed>0?" · 失败 "+failed+" 项":"")+(unknown>0?" · 结构未知 "+unknown+" 项":"");
+     progressState.Finish(queueStop?ImportProgressPhase.Cancelled:failed>0?ImportProgressPhase.Failed:ImportProgressPhase.Completed,result);PresentProgress();
+     owner.Write("candidate-queue-finished",new{completed=done,scheduled=total,cached=scanCachedCount,failed=failed,unknown=unknown,cancelled=queueStop,autoImport=false,autoPlay=false});
+    }
+   }
+  }
   internal void RefreshAliases(){foreach(var row in candidateRows)UpdateRow(row);ApplyFilter();}
   internal void RefreshOfficialNames(Dictionary<string,NameEvidence> names){foreach(ListViewItem row in candidateRows){var c=(ImportCandidate)row.Tag;OfficialNameStore.Apply(new List<ImportCandidate>{c},names);UpdateRow(row);}ApplyFilter();}
   internal void RefreshPreviewCover(string hash){foreach(ListViewItem row in candidateRows){var c=(ImportCandidate)row.Tag;if(c.Check!=null&&c.Check.Sha256==hash){PreviewCovers.Attach(c.Check);c.Cover=c.Check.CoverRelative==null?null:Path.Combine(Common.Root,c.Check.CoverRelative);c.CoverReason=c.Check.CoverReason;UpdateRow(row);Thumbnail(row);}}ApplyFilter();}
-  internal async Task Scan(){if(scanning||copying||queueRunning||closeRequested)return;scanning=true;queueStop=false;waitingRetries.Clear();ControlsState();status.Text="正在读取已知本地记录与有效缓存…";try{var data=await owner.ImportJob("scan",null,null);var found=Common.Json.Deserialize<List<ImportCandidate>>(Common.Json.Serialize(data["candidates"]));owner.ApplyOfficialNames(found);scanCachedCount=found.Count(c=>c.Check!=null);list.BeginUpdate();try{list.Items.Clear();candidateRows.Clear();thumbs.Images.Clear();deferFilter=true;foreach(var c in found)AddCandidate(c);deferFilter=false;ApplyFilter();}finally{list.EndUpdate();}owner.Write("candidate-scan-ready",new{count=found.Count,queued=found.Count(c=>c.Check==null),cached=found.Count(c=>c.Check!=null),cacheReasons=found.GroupBy(c=>c.CacheDisposition??"unspecified").ToDictionary(g=>g.Key,g=>g.Count()),cacheItems=found.Select(c=>new{id=c.Id,reason=c.CacheDisposition,cacheHit=c.Check!=null,coverRefreshDue=c.Check!=null&&c.Check.CoverRefreshDue}).ToArray(),discoveryMetrics=data.ContainsKey("coverStats")?data["coverStats"]:null,autoImport=false});}catch(OperationCanceledException){queueStop=true;status.Text="候选读取已取消，未导入。";}catch(Exception ex){queueStop=true;status.Text="候选读取失败："+ex.Message;owner.RecordFault("check","读取本地候选","scan",ex.Message,null,()=>{if(!IsDisposed&&!closeRequested){var ignored=Scan();}});}finally{scanning=false;UpdateSelection();}if(!queueStop&&!owner.closing&&!closeRequested){queueTask=RunQueue();await queueTask;}}
-  internal async Task AnalyzeSelected(){if(scanning||copying||queueRunning||Selected==null||closeRequested)return;var row=list.SelectedItems[0];queueStop=false;queueRunning=true;done=0;total=1;queueTask=RunOne(row,true);try{await queueTask;}finally{queueRunning=false;if(!IsDisposed){UpdateSelection();status.Text=CandidateState((ImportCandidate)row.Tag);}}}
-  internal async Task ImportSelected(){if(!CandidateChecks.Passed(Selected)||scanning||copying||closeRequested)return;var c=Selected;if(owner.closing||closeRequested)return;copying=true;copyCancelRequested=false;ControlsState();progress.Style=ProgressBarStyle.Blocks;progress.Value=0;string outcome="";try{if(queueRunning)await StopQueue();if(copyCancelRequested||owner.closing||closeRequested)throw new OperationCanceledException();var data=await owner.ImportJob("copy",c,(p,b,t)=>{status.Text=p+" · "+(b/1048576.0).ToString("F1")+" / "+(t/1048576.0).ToString("F1")+" MB";progress.Value=t<=0?0:(int)Math.Min(100,b*100/t);});if(owner.closing||owner.importOperation.Cancelled)throw new OperationCanceledException();bool duplicate;owner.RegisterImport(owner.importOperation,data,out duplicate);outcome=duplicate?"相同内容已在列表中，未重复建卡。":"已入库；封面已归属管理副本，播放状态请看首页。";progress.Value=100;foreach(ListViewItem row in candidateRows)UpdateRow(row);ApplyFilter();}catch(OperationCanceledException){outcome="导入已取消；未登记，临时文件已清理。";}catch(Exception ex){outcome="导入失败："+ex.Message;owner.RecordFault("save","导入所选壁纸","copy-or-register",ex.Message,c);owner.Write("local-import-failed",new{sourceId=c.Id,error=ex.Message});}finally{copying=false;if(!IsDisposed){UpdateSelection();status.Text=outcome;}}}
+  internal async Task Scan(){if(scanning||copying||queueRunning||closeRequested)return;scanning=true;queueStop=false;waitingRetries.Clear();ControlsState();progressState.Reading();PresentProgress();try{var data=await owner.ImportJob("scan",null,null);var found=Common.Json.Deserialize<List<ImportCandidate>>(Common.Json.Serialize(data["candidates"]));owner.ApplyOfficialNames(found);scanCachedCount=found.Count(c=>c.Check!=null);list.BeginUpdate();try{list.Items.Clear();candidateRows.Clear();thumbs.Images.Clear();deferFilter=true;foreach(var c in found)AddCandidate(c);deferFilter=false;ApplyFilter();}finally{list.EndUpdate();}owner.Write("candidate-scan-ready",new{count=found.Count,queued=found.Count(c=>c.Check==null),cached=found.Count(c=>c.Check!=null),cacheReasons=found.GroupBy(c=>c.CacheDisposition??"unspecified").ToDictionary(g=>g.Key,g=>g.Count()),cacheItems=found.Select(c=>new{id=c.Id,reason=c.CacheDisposition,cacheHit=c.Check!=null,coverRefreshDue=c.Check!=null&&c.Check.CoverRefreshDue}).ToArray(),discoveryMetrics=data.ContainsKey("coverStats")?data["coverStats"]:null,autoImport=false});}catch(OperationCanceledException){queueStop=true;progressState.Finish(ImportProgressPhase.Cancelled,"候选读取已取消");PresentProgress();}catch(Exception ex){queueStop=true;progressState.Finish(ImportProgressPhase.Failed,"候选读取失败："+ex.Message);PresentProgress();owner.RecordFault("check","读取本地候选","scan",ex.Message,null,()=>{if(!IsDisposed&&!closeRequested){var ignored=Scan();}});}finally{scanning=false;UpdateSelection();}if(!queueStop&&!owner.closing&&!closeRequested){queueTask=RunQueue();await queueTask;}}
+  internal async Task AnalyzeSelected(){if(scanning||copying||queueRunning||Selected==null||closeRequested)return;var row=list.SelectedItems[0];queueStop=false;queueRunning=true;done=0;total=1;ShowQueueProgress(((ImportCandidate)row.Tag).Name);queueTask=RunOne(row,true);try{await queueTask;}finally{queueRunning=false;if(!IsDisposed){UpdateSelection();var result=(ImportCandidate)row.Tag;progressState.Finish(result.Check.State=="cancelled"?ImportProgressPhase.Cancelled:result.Check.State=="failed"?ImportProgressPhase.Failed:ImportProgressPhase.Completed,CandidateState(result));PresentProgress();}}}
+  internal async Task ImportSelected() {
+   if(!CandidateChecks.Passed(Selected)||scanning||copying||closeRequested)return;
+   var candidate=Selected;if(owner.closing||closeRequested)return;
+   copying=true;copyCancelRequested=false;ControlsState();
+   string outcome="";var finalPhase=ImportProgressPhase.Completed;
+   try {
+    if(queueRunning)await StopQueue();
+    if(copyCancelRequested||owner.closing||closeRequested)throw new OperationCanceledException();
+    progressState.Copying("正在准备复制并核验",0,candidate.Bytes);PresentProgress();
+    var data=await owner.ImportJob("copy",candidate,(phase,bytes,totalBytes)=>{
+     if(progressState.Phase==ImportProgressPhase.Cancelling||IsDisposed)return;
+     progressState.Copying(phase,bytes,totalBytes);PresentProgress();
+    });
+    if(owner.closing||owner.importOperation.Cancelled)throw new OperationCanceledException();
+    var receipt=Common.Json.Deserialize<ImportReceipt>(Common.Json.Serialize(data["receipt"]));
+    progressState.Copying("复制与完整哈希核验已完成",receipt.Bytes,receipt.Bytes);PresentProgress();
+    progressState.Registering();PresentProgress();
+    bool duplicate;owner.RegisterImport(owner.importOperation,data,out duplicate);
+    outcome=duplicate?"相同内容已在列表中，未重复建卡。":"已入库 · 资源和壁纸登记已保存";
+    foreach(ListViewItem row in candidateRows)UpdateRow(row);ApplyFilter();
+   }catch(OperationCanceledException){finalPhase=ImportProgressPhase.Cancelled;outcome="导入已取消；临时任务已结束。";}
+   catch(Exception error){finalPhase=ImportProgressPhase.Failed;outcome="导入未完成："+error.Message;owner.RecordFault("save","导入所选壁纸","copy-or-register",error.Message,candidate);owner.Write("local-import-failed",new{sourceId=candidate.Id,error=error.Message});}
+   finally{copying=false;if(!IsDisposed){UpdateSelection();progressState.Finish(finalPhase,outcome);PresentProgress();}}
+  }
+
  }
 }

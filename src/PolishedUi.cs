@@ -57,7 +57,7 @@ internal sealed partial class ControlWindow {
  void BuildPolishedUi(){
   using(var g=CreateGraphics())uiScale=g.DpiX/96f;
   AutoScaleMode=AutoScaleMode.None;Font=new Font("Microsoft YaHei UI",9.5f);ForeColor=Theme.Ink;Ink=Theme.Ink;Muted=Theme.Muted;Blue=Theme.Blue;
-  Text="本地壁纸 · R36";Name="LocalWallpaperGallery";var area=Screen.PrimaryScreen.WorkingArea;ClientSize=HomeLayout.Client(area.Size,uiScale);
+  Text="本地壁纸 · R37";Name="LocalWallpaperGallery";var area=Screen.PrimaryScreen.WorkingArea;ClientSize=HomeLayout.Client(area.Size,uiScale);
   MinimumSize=new Size(Math.Min(U(900),area.Width-24),Math.Min(U(620),area.Height-32));StartPosition=FormStartPosition.CenterScreen;BackColor=Theme.Canvas;
   var root=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(U(24),U(12),U(24),U(12)),ColumnCount=1,RowCount=3};
   homeRows=root;
