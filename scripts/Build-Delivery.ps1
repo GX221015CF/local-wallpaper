@@ -63,13 +63,13 @@ try {
     foreach ($file in $canonical) {
         if ((Identity $file.path).sha256 -cne $file.sha256) { throw "Canonical source changed during build: $($file.path)" }
     }
-    $package = Join-Path $stage 'offline-package/LocalWallpaper-0.1.39-import-list-internal-r39.zip'
+    $package = Join-Path $stage 'offline-package/LocalWallpaper-0.1.40-interaction-internal-r40.zip'
     $receipt = [ordered]@{
-        result='passed'; version='0.1.39-import-list-internal-r39'; packagingRevision='source-layout.1'
+        result='passed'; version='0.1.40-interaction-internal-r40'; packagingRevision='source-layout.1'
         sourceRoot=$root; stageRoot=$stage; steps=$steps; sourceTreeUnchanged=$true
         outputs=@(Get-ChildItem -LiteralPath (Join-Path $stage 'build') -File -Recurse | ForEach-Object { Identity $_.FullName })
         package=(Identity $package); guiStarted=$false; thirdPartyEngineLoaded=$false; playbackStarted=$false
-        note='R39 native import list correctness revision built from maintained source in an owned stage. Runtime pins generated only in that stage. Original observed R30 package retained separately.'
+        note='R40 dialog stability and home interaction revision built from maintained source in an owned stage. Runtime pins generated only in that stage. Original observed R30 package retained separately.'
     }
     Save (Join-Path $run 'build-result.json') $receipt
     Write-Output ('BUILD_RECEIPT=' + (Join-Path $run 'build-result.json'))

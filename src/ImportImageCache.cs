@@ -22,6 +22,7 @@ internal sealed class ImportImageCache : IDisposable
     readonly LinkedList<string> order=new LinkedList<string>();
     readonly HashSet<Task> pending=new HashSet<Task>();
     readonly ImportPerformance performance;
+    readonly bool personalCover;
     long bytes;
     bool disposed;
     int activeDecoders,maximumDecoders;
@@ -57,9 +58,11 @@ internal sealed class ImportImageCache : IDisposable
             return maximumDecoders;
         }
     }
-    internal ImportImageCache(ImportPerformance performance)
+    internal ImportImageCache(ImportPerformance performance):this(performance,false){}
+    internal ImportImageCache(ImportPerformance performance,bool personalCover)
     {
         this.performance=performance;
+        this.personalCover=personalCover;
     }
     internal Task<Bitmap> GetAsync(string path,Size size,CancellationToken token)
     {
@@ -118,7 +121,7 @@ internal sealed class ImportImageCache : IDisposable
 #endif
                     using(var stream=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.ReadWrite|FileShare.Delete))
                     {
-                        if(stream.Length>8388608)throw new InvalidDataException("导入图片超过8MiB显示预算");
+                        if(stream.Length>(personalCover?20971520:8388608))throw new InvalidDataException("图片超过当前显示读取预算");
                         data=new byte[checked((int)stream.Length)];
                         int offset=0,count;
                         while(offset<data.Length&&(count=stream.Read(data,offset,Math.Min(32768,data.Length-offset)))>0)
@@ -129,14 +132,15 @@ internal sealed class ImportImageCache : IDisposable
                         if(offset!=data.Length)throw new EndOfStreamException("导入图片读取期间变化");
                     }
                     Interlocked.Increment(ref performance.ImageReads);
-                    Size dimensions=CoverCache.ImageDimensions(data);
+                    Size dimensions=personalCover?Size.Empty:CoverCache.ImageDimensions(data);
                     Bitmap scaled=null;
                     try
                     {
                         using(var memory=new MemoryStream(data,false))using(var image=Image.FromStream(memory,true,true))
                         {
                             cancel.ThrowIfCancellationRequested();
-                            if(image.Width!=dimensions.Width||image.Height!=dimensions.Height)throw new InvalidDataException("导入图片尺寸不一致");
+                            if(personalCover){if((long)image.Width*image.Height>40000000)throw new InvalidDataException("个人封面像素过大");}
+                            else if(image.Width!=dimensions.Width||image.Height!=dimensions.Height)throw new InvalidDataException("导入图片尺寸不一致");
                             double ratio=Math.Min(1,Math.Min((double)size.Width/image.Width,(double)size.Height/image.Height));
                             scaled=new Bitmap(Math.Max(1,(int)Math.Round(image.Width*ratio)),Math.Max(1,(int)Math.Round(image.Height*ratio)));
                             using(var graphics=Graphics.FromImage(scaled))

@@ -10,7 +10,6 @@ internal sealed partial class ControlWindow {
     readonly SoftButton checkComponents = new SoftButton();
     readonly SoftButton adoptComponents = new SoftButton();
     readonly SoftButton chooseComponents = new SoftButton();
-    readonly Label personalLibraryStatus = new Label();
     readonly LinkLabel personalLocationsToggle = new LinkLabel();
     readonly System.Windows.Forms.Timer preparationFold = new System.Windows.Forms.Timer { Interval = 16 };
     readonly System.Diagnostics.Stopwatch preparationFoldClock = new System.Diagnostics.Stopwatch();
@@ -46,10 +45,6 @@ internal sealed partial class ControlWindow {
         personalLocationsToggle.LinkBehavior = LinkBehavior.NeverUnderline;
         personalLocationsToggle.LinkClicked += (s, e) => TogglePersonalLocations();
         panel.Controls.Add(personalLocationsToggle, 0, 2);
-        personalLibraryStatus.Dock = DockStyle.Fill;
-        personalLibraryStatus.AutoEllipsis = true;
-        personalLibraryStatus.ForeColor = Muted;
-        personalLibraryStatus.Text = "个人库 · " + library.Doc.Items.Count + " 张  |  " + Common.Root + "\n来源状态见顶部；点击来源可调整。选中卡片不会立即切换播放。";
         panel.Controls.Add(new Label{Text="完整身份核验不代表已加载或正在播放。取消保留原配置，播放开始前仍核验。",Dock=DockStyle.Fill,ForeColor=Muted}, 0, 3);
         preparationFold.Tick += (s, e) => {
             float progress = Math.Min(1, preparationFoldClock.ElapsedMilliseconds / 340f);
@@ -83,7 +78,6 @@ internal sealed partial class ControlWindow {
         adoptComponents.Enabled = !closing && !runtimeCheckRunning && !transition && !RuntimeProvisioning.Available
             && runtimeDiscovery != null && runtimeDiscovery.CandidateRoot != null;
         personalLocationsToggle.Text = (locationsExpanded ? "▾ 收起核验说明" : "▸ 展开核验说明");
-        personalLibraryStatus.Text = "持久个人库\n" + Common.Root + "\n导入的壁纸和封面在这里持续保存。";
     }
 
     async void StartRuntimeCheckOnStartup() {

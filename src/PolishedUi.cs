@@ -8,6 +8,7 @@ internal sealed partial class ControlWindow {
  readonly SoftButton wallpaperMore=new SoftButton();
  readonly MaterialMenu wallpaperMenu=new MaterialMenu();
  WallpaperItem wallpaperMenuTarget;
+ readonly MenuToggleState moreToggle=new MenuToggleState();
  bool arrangingSide;
  void LayoutSide(){LayoutSide(confirmPreview.Visible);}
  void LayoutSide(bool confirmationVisible) {
@@ -57,7 +58,7 @@ internal sealed partial class ControlWindow {
  void BuildPolishedUi(){
   using(var g=CreateGraphics())uiScale=g.DpiX/96f;
   AutoScaleMode=AutoScaleMode.None;Font=new Font("Microsoft YaHei UI",9.5f);ForeColor=Theme.Ink;Ink=Theme.Ink;Muted=Theme.Muted;Blue=Theme.Blue;
-  Text="本地壁纸 · R37";Name="LocalWallpaperGallery";var area=Screen.PrimaryScreen.WorkingArea;ClientSize=HomeLayout.Client(area.Size,uiScale);
+  Text="本地壁纸 · R40";Name="LocalWallpaperGallery";var area=Screen.PrimaryScreen.WorkingArea;ClientSize=HomeLayout.Client(area.Size,uiScale);
   MinimumSize=new Size(Math.Min(U(900),area.Width-24),Math.Min(U(620),area.Height-32));StartPosition=FormStartPosition.CenterScreen;BackColor=Theme.Canvas;
   var root=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(U(24),U(12),U(24),U(12)),ColumnCount=1,RowCount=3};
   homeRows=root;
@@ -119,7 +120,14 @@ internal sealed partial class ControlWindow {
    wallpaperMenu.Prepare(uiScale);
   };
   wallpaperMenu.Closed+=(s,e)=>{if(!closing&&!IsDisposed&&ContainsFocus)wallpaperMore.Focus();};
-  wallpaperMore.Click+=(s,e)=>wallpaperMenu.Show(wallpaperMore,new Point(0,wallpaperMore.Height));row(pair(renameWallpaper,wallpaperMore),38);
+  wallpaperMenu.Closing+=(s,e)=>moreToggle.Closing(e.CloseReason,wallpaperMore.RectangleToScreen(wallpaperMore.ClientRectangle).Contains(Cursor.Position));
+  wallpaperMore.MouseLeave+=(s,e)=>moreToggle.AbandonPointerClick();
+  wallpaperMore.MouseUp+=(s,e)=>{if(!wallpaperMore.ClientRectangle.Contains(e.Location))moreToggle.AbandonPointerClick();};
+  wallpaperMore.Click+=(s,e)=>{
+   var intent=moreToggle.Click(wallpaperMenu.Visible);
+   if(intent==MenuToggleIntent.Close)wallpaperMenu.Close();
+   else if(intent==MenuToggleIntent.Open)wallpaperMenu.Show(wallpaperMore,new Point(0,wallpaperMore.Height));
+  };row(pair(renameWallpaper,wallpaperMore),38);
   nowPlaying.Font=new Font(Font.FontFamily,9);nowPlaying.ForeColor=Muted;nowPlaying.AutoEllipsis=true;row(nowPlaying,26);
   sideRows.RowStyles.Add(new RowStyle(SizeType.Percent,100));sideRows.RowCount++;
   side.Resize+=(s,e)=>LayoutSide();body.Resize+=(s,e)=>LayoutSide();sideRows.Resize+=(s,e)=>LayoutSide();Disposed+=(s,e)=>wallpaperMenu.Dispose();LayoutSide();

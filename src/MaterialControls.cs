@@ -5,17 +5,32 @@ using System.Windows.Forms;
 
 internal class MaterialDialog : Form {
  readonly Icon ownedIcon;
- readonly Timer animation=new Timer{Interval=16};
- readonly System.Diagnostics.Stopwatch clock=new System.Diagnostics.Stopwatch();
- Rectangle finalBounds;
+ Form placementOwner;
  internal MaterialDialog(){ownedIcon=AppVisuals.LoadIcon();Icon=ownedIcon;BackColor=Theme.Canvas;Font=new Font("Microsoft YaHei UI",10);ForeColor=Theme.Ink;AutoScaleMode=AutoScaleMode.Dpi;}
- protected override void OnShown(EventArgs e){
-  base.OnShown(e);if(!SoftButton.MotionEnabled)return;
-  finalBounds=Bounds;clock.Restart();
-  animation.Tick+=(s,args)=>{double t=Math.Min(1,clock.ElapsedMilliseconds/240d);float scale=(float)(.96+.04*(1-Math.Pow(1-t,3)));Bounds=new Rectangle(finalBounds.X+(int)(finalBounds.Width*(1-scale)/2),finalBounds.Y+(int)(finalBounds.Height*(1-scale)/2),(int)(finalBounds.Width*scale),(int)(finalBounds.Height*scale));if(t>=1){Bounds=finalBounds;animation.Stop();}};
-  animation.Start();
+ internal static Rectangle OwnerPlacement(Rectangle owner,Size size,Rectangle area){
+  int width=Math.Min(size.Width,area.Width),height=Math.Min(size.Height,area.Height);
+  int x=Math.Max(area.Left,Math.Min(area.Right-width,owner.Left+(owner.Width-width)/2));
+  int y=Math.Max(area.Top,Math.Min(area.Bottom-height,owner.Top+(owner.Height-height)/2));
+  return new Rectangle(x,y,width,height);
  }
- protected override void Dispose(bool disposing){if(disposing){animation.Dispose();Icon=null;if(ownedIcon!=null)ownedIcon.Dispose();}base.Dispose(disposing);}
+ internal void PlaceNearOwner(Form owner){
+  if(owner==null)return;
+  placementOwner=owner;
+  Rectangle area=Screen.FromControl(owner).WorkingArea;
+  StartPosition=FormStartPosition.Manual;
+  MinimumSize=new Size(Math.Min(MinimumSize.Width,area.Width),Math.Min(MinimumSize.Height,area.Height));
+  Bounds=OwnerPlacement(owner.Bounds,Size,area);
+ }
+ protected override void OnLoad(EventArgs e){
+  base.OnLoad(e);
+  if(placementOwner!=null)PlaceNearOwner(placementOwner);
+  else if(StartPosition==FormStartPosition.CenterParent&&Owner!=null)PlaceNearOwner(Owner);
+ }
+ protected override void Dispose(bool disposing){if(disposing){Icon=null;if(ownedIcon!=null)ownedIcon.Dispose();}base.Dispose(disposing);}
+}
+
+internal sealed class BufferedCandidateList : ListView {
+ internal BufferedCandidateList(){DoubleBuffered=true;}
 }
 
 internal sealed class SpringToggle : CheckBox {

@@ -58,7 +58,7 @@ internal static class MaterialRenameRegression {
    var settings=(Form)Field(window,"settingsWindow");var tabs=(TabControl)Field(window,"settingsTabs");
    Need(tabs.TabPages.Count==4,"settings-contains-all-four-existing-feature-groups");
    Need(!settings.Visible&&!window.Visible,"control-construction-never-shows-a-window");
-   foreach(string field in new[]{"sourceHint","libraryHint","personalLibraryStatus","loginOptions","mute"}){
+   foreach(string field in new[]{"sourceHint","libraryHint","libraryPathRow","loginOptions","mute"}){
     var control=(Control)Field(window,field);Need(Descendants(settings).Contains(control),"technical-control-moved-to-settings-"+field);
    }
    Need(Descendants(window).Any(control=>control.Name=="OpenSettings"),"fixed-settings-entry-is-on-home");

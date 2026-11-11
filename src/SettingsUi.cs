@@ -12,6 +12,7 @@ internal static class SettingsIdentityText {
 internal sealed partial class ControlWindow {
  MaterialDialog settingsWindow;
  MaterialTabs settingsTabs;
+ SettingsPathRow sourcePathRow,libraryPathRow,namesPathRow,componentPathRow;
  readonly Label settingsSelection=new Label(),settingsRunning=new Label(),settingsOperation=new Label();
  readonly LinkLabel homePreparation=new LinkLabel();
  readonly MaterialNotice homeNotice=new MaterialNotice();
@@ -24,6 +25,7 @@ internal sealed partial class ControlWindow {
   var panel=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.TopDown,WrapContents=false,AutoScroll=true,Padding=new Padding(22)};
   panel.Controls.Add(new Label{Text=title,Font=new Font(Font.FontFamily,17,FontStyle.Bold),AutoSize=true,Margin=new Padding(0,0,0,12)});
   panel.Controls.Add(new Label{Text=explanation,AutoSize=false,Width=600,Height=52,ForeColor=Muted,Margin=new Padding(0,0,0,14)});
+  panel.Resize+=(s,e)=>{foreach(Control child in panel.Controls)child.Width=Math.Max(180,panel.ClientSize.Width-panel.Padding.Horizontal-SystemInformation.VerticalScrollBarWidth-4);};
   return panel;
  }
  void EnsureSettingsWindow(){
@@ -33,15 +35,16 @@ internal sealed partial class ControlWindow {
   settingsTabs=new MaterialTabs{Dock=DockStyle.Fill,Font=Font};outer.Controls.Add(settingsTabs,0,0);
   foreach(var name in SettingsGroups)settingsTabs.TabPages.Add(new TabPage(name){BackColor=Theme.Canvas,UseVisualStyleBackColor=false});
   var storage=SettingsSection("来源与存储","来源供发现候选使用；导入会把选中的资源复制到持久个人库。原缓存保持原位置。");settingsTabs.TabPages[0].Controls.Add(storage);
-  sourceHint.AutoSize=false;sourceHint.Size=new Size(600,72);sourceHint.Location=Point.Empty;storage.Controls.Add(sourceHint);
-  var sourceButton=new SoftButton{Text="更改壁纸来源",Size=new Size(190,40)};sourceButton.Click+=(s,e)=>ChooseSourceLocation();storage.Controls.Add(sourceButton);
-  personalLibraryStatus.Dock=DockStyle.None;personalLibraryStatus.AutoSize=false;personalLibraryStatus.Size=new Size(600,95);storage.Controls.Add(personalLibraryStatus);
-  var names=new Label{Text="可选名称缓存\n"+OfficialNames.CacheRoot+"\n使用现有固定只读位置补充名称，无需配置。缺失不影响检查和导入；自定义名称优先。",Size=new Size(600,105),ForeColor=Muted};storage.Controls.Add(names);
+  sourceHint.AutoSize=false;sourceHint.Size=new Size(600,34);sourceHint.Location=Point.Empty;storage.Controls.Add(sourceHint);
+  sourcePathRow=new SettingsPathRow("壁纸来源","发现本机已有候选。更改时仍核对已知缓存布局。",()=>ChooseSourceLocation());
+  sourcePathRow.Change.Text="更改来源";storage.Controls.Add(sourcePathRow);
+  libraryPathRow=new SettingsPathRow("持久个人库","资源、名称、封面和确认持续保存在此处。当前位置由正式数据绑定管理。",null);storage.Controls.Add(libraryPathRow);
+  namesPathRow=new SettingsPathRow("可选名称缓存","固定只读位置，用于本地名称补充。缺失不影响检查和导入。",null);storage.Controls.Add(namesPathRow);
   var components=SettingsSection("播放组件","只核验保存位置及有依据的标准安装位置。首次采用需明确确认；检查不会加载引擎或播放。");settingsTabs.TabPages[1].Controls.Add(components);
   preparationHost.Size=new Size(620,205);preparationHost.Controls.Add(BuildPreparationArea());components.Controls.Add(preparationHost);
   // Storage information has one home, in the first group. The reused component
   // panel contains only runtime status/actions and its expandable technical note.
-  storage.Controls.Add(personalLibraryStatus);personalLibraryStatus.Dock=DockStyle.None;
+  componentPathRow=new SettingsPathRow("播放组件位置","采用已核验位置仍使用原确认和保存流程。",null);components.Controls.Add(componentPathRow);
   settingsSkeleton.Size=new Size(600,46);components.Controls.Add(settingsSkeleton);
   components.Controls.Add(new Label{Text="缺文件、版本变化或配置失效时按上方原因处理。外部组件由你合法安装，软件包不携带它们。",Size=new Size(600,65),ForeColor=Muted});
   var sound=SettingsSection("声音与登录恢复","声音调整沿用现有保存机制。仅打开本页不会修改登录恢复配置。");settingsTabs.TabPages[2].Controls.Add(sound);
@@ -62,10 +65,14 @@ internal sealed partial class ControlWindow {
  }
  void ShowSettings(int group=0){
   if(closing)return;EnsureSettingsWindow();settingsTabs.SelectedIndex=Math.Max(0,Math.Min(SettingsGroups.Length-1,group));
-  RefreshSettingsState();if(!settingsWindow.Visible)settingsWindow.Show(this);settingsWindow.Activate();
+  RefreshSettingsState();if(!settingsWindow.Visible){settingsWindow.PlaceNearOwner(this);settingsWindow.Show(this);}settingsWindow.Activate();
  }
  void RefreshSettingsState(){
   if(settingsWindow==null||settingsWindow.IsDisposed)return;
+  sourcePathRow.SetPath(sourceState==null?SourceLocation.ResolveRoot():sourceState.Root);
+  libraryPathRow.SetPath(Common.Root);
+  namesPathRow.SetPath(OfficialNames.CacheRoot);
+  componentPathRow.SetPath(RuntimeProvisioning.Root??(runtimeDiscovery==null?null:runtimeDiscovery.CandidateRoot));
   string activeId=activeRunRequest==null?null:Common.S(activeRunRequest,"selectedCatalogId");
   settingsSelection.Text=SettingsIdentityText.Selection(selected);
   settingsRunning.Text=SettingsIdentityText.Playing(library,activeId,activeRunName,PlayerRole=="alive",CurrentRun);

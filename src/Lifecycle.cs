@@ -135,7 +135,7 @@ internal sealed partial class ControlWindow {
  async void OnClosing(object sender,FormClosingEventArgs e){
   if(allowClose)return;e.Cancel=true;if(closing)return;closing=true;CancelPlaybackPreparation("controller-close");var watch=Stopwatch.StartNew();bool confirmed=false;Write("controller-close-request",new{maxWaitSeconds=12});
   try{
-   await StopFaultHandoff();await StopPreviewCoverCapture();await StopDailyFlow();await StopDiscovery();await StopImport();
+   await StopFaultHandoff();await StopPreviewCoverCapture();await StopDailyFlow();await StopDiscovery();await StopImport();await StopHomeImages();
    while(transition&&watch.Elapsed.TotalSeconds<10)await Task.Delay(100);
    if(!transition){transition=true;try{confirmed=await StopCore("controller-close",Math.Min(10,12-watch.Elapsed.TotalSeconds));}finally{transition=false;}}
    if(!confirmed){Poll();confirmed=Clean;}

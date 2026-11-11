@@ -3,6 +3,17 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
+internal enum MenuToggleIntent { None, Open, Close }
+internal sealed class MenuToggleState {
+ bool dismissedOnTrigger;
+ internal void Closing(ToolStripDropDownCloseReason reason,bool triggerHit){dismissedOnTrigger=reason==ToolStripDropDownCloseReason.AppClicked&&triggerHit;}
+ internal void AbandonPointerClick(){dismissedOnTrigger=false;}
+ internal MenuToggleIntent Click(bool visible){
+  if(dismissedOnTrigger){dismissedOnTrigger=false;return MenuToggleIntent.None;}
+  return visible?MenuToggleIntent.Close:MenuToggleIntent.Open;
+ }
+}
+
 internal sealed class MaterialMenu : ContextMenuStrip {
  readonly Font ownedFont;
  internal MaterialMenu() {

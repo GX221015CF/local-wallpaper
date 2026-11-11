@@ -15,7 +15,7 @@ internal sealed partial class ControlWindow {
  sealed partial class ImportDialog:MaterialDialog {
   readonly ImportPerformance performance=new ImportPerformance();
   readonly ControlWindow owner;readonly ImageList thumbs=new ImageList{ImageSize=new Size(64,40),ColorDepth=ColorDepth.Depth32Bit};
-  internal readonly ListView list=new ListView();readonly PictureBox cover=new PictureBox();internal readonly TextBox note=new TextBox();internal readonly Label status=new Label();internal readonly MaterialProgress progress=new MaterialProgress();
+  internal readonly ListView list=new BufferedCandidateList();readonly PictureBox cover=new PictureBox();internal readonly TextBox note=new TextBox();internal readonly Label status=new Label();internal readonly MaterialProgress progress=new MaterialProgress();
   readonly ImportProgressState progressState=new ImportProgressState();
   TableLayoutPanel importLayout;bool sizingProgress;string renderedProgress;
   internal readonly Button import=new SoftButton(),analyze=new SoftButton(),cancel=new SoftButton(),refresh=new SoftButton();readonly ToolTip guidance=new ToolTip{AutoPopDelay=15000};
@@ -59,8 +59,13 @@ internal sealed partial class ControlWindow {
   void PresentProgress() {using(performance.Measure("ui.progress")){
    if(IsDisposed)return;
    string progressKey=progressState.Phase+"|"+progressState.Text+"|"+progressState.Completed+"|"+progressState.Total;if(progressKey==renderedProgress)return;renderedProgress=progressKey;
-   status.Text=progressState.Text;status.AccessibleDescription=progressState.Text;
-   guidance.SetToolTip(status,progressState.Text);progress.Present(progressState);LayoutProgress();
+   float oldStatusHeight=importLayout.RowStyles[2].Height,oldTrackHeight=importLayout.RowStyles[3].Height;
+   importLayout.SuspendLayout();
+   try {
+    status.Text=progressState.Text;status.AccessibleDescription=progressState.Text;
+    guidance.SetToolTip(status,progressState.Text);progress.Present(progressState);LayoutProgress();
+   } finally {importLayout.ResumeLayout(false);}
+   if(oldStatusHeight!=importLayout.RowStyles[2].Height||oldTrackHeight!=importLayout.RowStyles[3].Height)importLayout.PerformLayout();
    owner.Write("import-progress",new{phase=progressState.Phase.ToString(),completed=progressState.Completed,total=progressState.Total,indeterminate=progressState.Indeterminate,text=progressState.Text});
   }}
   void LayoutProgress() {using(performance.Measure("ui.layout")){
@@ -68,9 +73,9 @@ internal sealed partial class ControlWindow {
    sizingProgress=true;
    try {
     float scale;using(var graphics=CreateGraphics())scale=graphics.DpiX/96f;
-    status.Padding=new Padding(0,(int)(8*scale),0,(int)(6*scale));
-    int width=Math.Max(1,importLayout.ClientSize.Width-importLayout.Padding.Horizontal);
-    float textHeight=Math.Max((int)(42*scale),HomeTypography.WrappedHeight(status.Text,status.Font,width,2)+status.Padding.Vertical);
+    var padding=new Padding(0,(int)(8*scale),0,(int)(6*scale));
+    if(status.Padding!=padding)status.Padding=padding;
+    float textHeight=HomeTypography.LineHeight(status.Font)*2+status.Padding.Vertical;
     float trackHeight=progress.TrackVisible?(int)(22*scale):0;
     if(importLayout.RowStyles[2].Height!=textHeight)importLayout.RowStyles[2].Height=textHeight;
     if(importLayout.RowStyles[3].Height!=trackHeight)importLayout.RowStyles[3].Height=trackHeight;

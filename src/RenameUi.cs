@@ -35,6 +35,7 @@ internal sealed partial class ControlWindow {
   if(item==null||closing)return;
   if(renameWindow!=null&&!renameWindow.IsDisposed){renameWindow.Activate();return;}
   var dialog=CreateRenameEditor(item);
+  dialog.PlaceNearOwner(this);
   renameWindow=dialog;dialog.FormClosed+=(s,e)=>{renameWindow=null;if(!closing&&!IsDisposed){if(selected!=null&&selected.Id==item.Id)renameWallpaper.Focus();else cards.Focus();}};
 #if TEST_BUILD
   if(TestSuppressRenameShow)return;
