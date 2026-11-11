@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Forms;
@@ -29,35 +30,41 @@ internal sealed class MaterialTabs : UserControl
         protected override AccessibleObject CreateAccessibilityInstance() { return new LabelAccessibility(this); }
         internal LabelButton()
         {
+            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer, true);
             FlatStyle = FlatStyle.Flat; FlatAppearance.BorderSize = 0;
             FlatAppearance.MouseOverBackColor = Color.FromArgb(237, 242, 250);
             FlatAppearance.MouseDownBackColor = Color.FromArgb(225, 235, 250);
             BackColor = Theme.Canvas; UseVisualStyleBackColor = false; UseMnemonic = false;
             AccessibleRole = AccessibleRole.PageTab;
         }
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var graphics = e.Graphics;
+            graphics.Clear(Parent == null ? Theme.Canvas : Parent.BackColor);
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            using (var path = Theme.Round(new RectangleF(2, 3, Width - 4, Height - 6), 12))
+            using (var fill = new SolidBrush(BackColor)) graphics.FillPath(fill, path);
+            TextRenderer.DrawText(graphics, Text, Font, new Rectangle(8, 4, Width - 16, Height - 8), ForeColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+            if (Focused && ShowFocusCues) ControlPaint.DrawFocusRectangle(graphics, new Rectangle(6, 6, Width - 12, Height - 12), ForeColor, BackColor);
+        }
+        protected override void OnGotFocus(EventArgs e) { base.OnGotFocus(e); Invalidate(); }
+        protected override void OnLostFocus(EventArgs e) { base.OnLostFocus(e); Invalidate(); }
     }
     sealed class LabelBar : Panel
     {
-        internal RectangleF Indicator;
         internal LabelBar() { DoubleBuffered = true; }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            using (var line = new Pen(Theme.Line)) e.Graphics.DrawLine(line, 0, Height - 1, Width, Height - 1);
-            using (var brush = new SolidBrush(Theme.Blue)) e.Graphics.FillRectangle(brush, Indicator);
-        }
     }
     readonly LabelBar bar = new LabelBar { Dock = DockStyle.Top };
     readonly Panel pages = new Panel { Dock = DockStyle.Fill, BackColor = Theme.Canvas };
     readonly Timer animation = new Timer { Interval = 16 };
     readonly Stopwatch clock = new Stopwatch();
-    RectangleF start, target;
+    Color[] start = new Color[0];
+    static readonly Color SelectedFill = Color.FromArgb(221, 234, 253);
     int selected = -1;
     bool arranging;
     internal readonly PageCollection TabPages;
     internal bool AnimationRunning { get { return animation.Enabled; } }
-    internal RectangleF Indicator { get { return bar.Indicator; } }
-    internal RectangleF TargetIndicator { get { return target; } }
 #if TEST_BUILD
     internal bool TestAnimateHidden;
     internal bool TestReduceMotion;
@@ -88,7 +95,7 @@ internal sealed class MaterialTabs : UserControl
         set
         {
             if (value < 0 || value >= TabPages.Count) throw new ArgumentOutOfRangeException("value");
-            if (selected == value) { if (!MotionAllowed) { target = Target(value); Snap(); } return; }
+            if (selected == value) { if (!MotionAllowed) Snap(); return; }
             Advance(); selected = value;
             for (int index = 0; index < TabPages.Count; index++)
             {
@@ -100,8 +107,9 @@ internal sealed class MaterialTabs : UserControl
                 button.AccessibleDescription = index == value ? "当前选中" : "切换设置分组";
             }
             SelectedTab.BringToFront();
-            start = bar.Indicator; target = Target(value);
-            if (!MotionAllowed || start.IsEmpty) Snap();
+            start = new Color[bar.Controls.Count];
+            for (int index = 0; index < start.Length; index++) start[index] = bar.Controls[index].BackColor;
+            if (!MotionAllowed) Snap();
             else { clock.Restart(); animation.Start(); }
         }
     }
@@ -137,12 +145,6 @@ internal sealed class MaterialTabs : UserControl
         }
         return base.ProcessCmdKey(ref message, keyData);
     }
-    RectangleF Target(int index)
-    {
-        if (index < 0 || index >= bar.Controls.Count) return RectangleF.Empty;
-        var button = bar.Controls[index];
-        return new RectangleF(button.Left + 12, bar.Height - 4, Math.Max(1, button.Width - 24), 3);
-    }
     void ArrangeTabs()
     {
         if (arranging || bar == null) return;
@@ -156,21 +158,30 @@ internal sealed class MaterialTabs : UserControl
                 int right = (index + 1) * bar.Width / bar.Controls.Count;
                 bar.Controls[index].SetBounds(left, 0, right - left, bar.Height - 6);
             }
-            target = Target(selected); Snap();
+            Snap();
         }
         finally { arranging = false; }
     }
     void Advance()
     {
         if (!animation.Enabled) return;
-        double t = Math.Min(1, clock.Elapsed.TotalMilliseconds / 240);
+        double t = Math.Min(1, clock.Elapsed.TotalMilliseconds / 220);
         float ease = (float)(1 - Math.Pow(1 - t, 3));
-        bar.Indicator = new RectangleF(start.X + (target.X - start.X) * ease, target.Y,
-            start.Width + (target.Width - start.Width) * ease, target.Height);
-        bar.Invalidate();
+        for (int index = 0; index < bar.Controls.Count; index++)
+        {
+            Color from = start[index], to = index == selected ? SelectedFill : Theme.Canvas;
+            bar.Controls[index].BackColor = Color.FromArgb(
+                (int)Math.Round(from.R + (to.R - from.R) * ease),
+                (int)Math.Round(from.G + (to.G - from.G) * ease),
+                (int)Math.Round(from.B + (to.B - from.B) * ease));
+        }
         if (t >= 1 || !MotionAllowed) Snap();
     }
-    void Snap() { animation.Stop(); bar.Indicator = target; bar.Invalidate(); }
+    void Snap()
+    {
+        animation.Stop();
+        for (int index = 0; index < bar.Controls.Count; index++) bar.Controls[index].BackColor = index == selected ? SelectedFill : Theme.Canvas;
+    }
     protected override void OnFontChanged(EventArgs e) { base.OnFontChanged(e); ArrangeTabs(); }
     protected override void OnVisibleChanged(EventArgs e) { base.OnVisibleChanged(e); ArrangeTabs(); }
     protected override void OnResize(EventArgs e) { base.OnResize(e); ArrangeTabs(); }

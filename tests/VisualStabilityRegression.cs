@@ -170,29 +170,30 @@ internal static class VisualStabilityRegression
             var handle = tabs.Handle;
             tabs.SelectedIndex = 3;
             await Task.Delay(70);
-            RectangleF current = tabs.Indicator;
+            var bar = (Control)Field(tabs, "bar");
+            Color current = bar.Controls[3].BackColor;
             tabs.SelectedIndex = 1;
             Check("tabs-retarget-immediate-content", () =>
             {
                 Need(tabs.SelectedTab == tabs.TabPages[1] && tabs.TabPages[1].Parent.Controls.GetChildIndex(tabs.TabPages[1]) == 0, "page changes immediately");
-                Need((RectangleF)Field(tabs, "start") == tabs.Indicator && tabs.Indicator.X >= current.X,
+                Need(((Color[])Field(tabs, "start"))[3] == bar.Controls[3].BackColor && bar.Controls[3].BackColor != Theme.Canvas,
                     "retarget starts at the current elapsed interpolation, without a queued old origin");
             });
             foreach (int index in new[] { 0, 2, 3, 1, 3 }) { tabs.SelectedIndex = index; await Task.Delay(15); }
             await Task.Delay(300);
-            Check("tabs-final-animation-target", () => Need(tabs.SelectedIndex == 3 && tabs.Indicator == tabs.TargetIndicator && !tabs.AnimationRunning, "one bounded animation finishes at final page"));
+            Check("tabs-final-animation-target", () => Need(tabs.SelectedIndex == 3 && !tabs.AnimationRunning && bar.Controls[tabs.SelectedIndex].BackColor != Theme.Canvas, "one bounded animation finishes at final page"));
             tabs.SelectKey(Keys.Home); tabs.SelectKey(Keys.Right); tabs.SelectKey(Keys.End);
             Check("tabs-keyboard", () => Need(tabs.SelectedIndex == 3, "Home, arrows and End update pages"));
             object[] keyArgs = { Message.Create(tabs.Handle, 0, IntPtr.Zero, IntPtr.Zero), Keys.Control | Keys.Tab };
             Need((bool)typeof(MaterialTabs).GetMethod("ProcessCmdKey", Flags).Invoke(tabs, keyArgs) && tabs.SelectedIndex == 0, "CtrlTab advances from page focus");
             tabs.TestReduceMotion = true; tabs.SelectedIndex = 0;
-            Check("tabs-reduced-motion", () => Need(tabs.Indicator == tabs.TargetIndicator && !tabs.AnimationRunning, "reduced motion snaps immediately"));
+            Check("tabs-reduced-motion", () => Need(!tabs.AnimationRunning && bar.Controls[tabs.SelectedIndex].BackColor != Theme.Canvas, "reduced motion snaps immediately"));
             tabs.TestReduceMotion = false; tabs.SelectedIndex = 2; tabs.Size = new Size(580, 380);
-            Check("tabs-resize-cancels", () => Need(tabs.SelectedIndex == 2 && tabs.Indicator == tabs.TargetIndicator && !tabs.AnimationRunning, "resize cancels outdated coordinates"));
+            Check("tabs-resize-cancels", () => Need(tabs.SelectedIndex == 2 && !tabs.AnimationRunning && bar.Controls[tabs.SelectedIndex].BackColor != Theme.Canvas, "resize cancels outdated coordinates"));
             tabs.Visible = false;
             tabs.SelectedIndex = 1;
             tabs.Visible = true;
-            Check("tabs-hidden-reopen", () => Need(tabs.SelectedIndex == 1 && tabs.Indicator == tabs.TargetIndicator && !tabs.AnimationRunning, "visibility refresh uses current page"));
+            Check("tabs-hidden-reopen", () => Need(tabs.SelectedIndex == 1 && !tabs.AnimationRunning && bar.Controls[tabs.SelectedIndex].BackColor != Theme.Canvas, "visibility refresh uses current page"));
             using (var bitmap = new Bitmap(tabs.Width, tabs.Height))
             {
                 using (var graphics = Graphics.FromImage(bitmap)) Render(tabs, graphics, Point.Empty);
@@ -217,7 +218,7 @@ internal static class VisualStabilityRegression
                 actual.Font = new Font(owner.Font.FontFamily, 9.5f * scale);
                 actual.Size = new Size((int)(640 * scale), (int)(480 * scale));
                 Layout(actual);
-                Need(actual.Indicator == actual.TargetIndicator, "real header resize follows current label");
+                Need(!actual.AnimationRunning && bar.Controls[actual.SelectedIndex].BackColor != Theme.Canvas, "real header resize follows current label");
                 foreach (Control button in bar.Controls)
                     Need(button.Width >= TextRenderer.MeasureText(button.Text, button.Font).Width, "real label text fits common scaling");
             }

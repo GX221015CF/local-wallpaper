@@ -16,9 +16,10 @@ for name in ('runtime-components.json', 'v3-structure-families.json'):
     (app / 'rules' / name).write_bytes((root / 'rules' / name).read_bytes())
 compiler = Path(os.environ['WINDIR']) / 'Microsoft.NET/Framework/v4.0.30319/csc.exe'
 sources = list((root / 'src').glob('*.cs')) + [root / 'shared/DailyLog.cs', root / 'shared/AppVisuals.cs']
-sources += [root / 'tests' / name for name in ('FirstUseRegression.cs','MultiWallpaperRegression.cs','ImportExperienceRegression.cs','ImportResponseRegression.cs','ImportListRegression.cs','InteractionRegression.cs','VisualStabilityRegression.cs')]
+sources += [root / 'tests' / name for name in ('FirstUseRegression.cs','MultiWallpaperRegression.cs','ImportExperienceRegression.cs','ImportResponseRegression.cs','ImportListRegression.cs','InteractionRegression.cs','VisualStabilityRegression.cs','SettingsColorRegression.cs')]
 exe = app / 'build' / (run.name.replace('-','_') + 'ResponseTest.exe')
-command = [str(compiler),'/nologo','/target:exe','/platform:x86','/define:TEST_BUILD','/main:VisualStabilityRegression','/out:'+str(exe)]
+main = sys.argv[4] if len(sys.argv)>4 else 'VisualStabilityRegression'
+command = [str(compiler),'/nologo','/target:exe','/platform:x86','/define:TEST_BUILD','/main:'+main,'/out:'+str(exe)]
 command += ['/r:'+name for name in ('System.Windows.Forms.dll','System.Drawing.dll','System.Web.Extensions.dll','System.Core.dll','System.Security.dll','System.IO.Compression.dll','System.IO.Compression.FileSystem.dll')]
 command += ['/resource:'+str(root/'assets/LocalWallpaper.ico')+',LocalWallpaper.ico']
 command += list(map(str,sources))
