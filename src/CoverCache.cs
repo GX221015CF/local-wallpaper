@@ -77,7 +77,7 @@ internal static class CoverCache {
  internal static void ValidateV2Directory(string p,Action check){string member;ReadV2Preview(p,check,out member,true);}
  internal static void EnsureVerified(ImportCandidate c,string sha,string md5,Action check){Resolve(c,c.Source,sha,md5,check);}
  static byte[] ReadV2Preview(string p,Action check,out string member,bool directoryOnly=false){
-  member=null;long previewStart=0;int previewSize=0;Reads++;
+  member=null;long previewStart=0;int previewSize=0;if(!directoryOnly)Reads++;
   using(var stream=new FileStream(p,FileMode.Open,FileAccess.Read,FileShare.ReadWrite|FileShare.Delete))using(var r=new BinaryReader(stream)){
    if(r.ReadUInt32()!=0x02505743)throw new NotSupportedException("不是已支持的v2封面结构");uint declared=r.ReadUInt32(),tableSize=r.ReadUInt32(),bias=r.ReadUInt32();if(declared!=stream.Length||tableSize==0||tableSize>MaxTable||16L+tableSize>stream.Length)throw new InvalidDataException("目录长度超出已支持范围");
    check();byte[] table=Decrypt(Exact(r,(int)tableSize));long previous=16L+tableSize;var names=new HashSet<string>(StringComparer.OrdinalIgnoreCase);

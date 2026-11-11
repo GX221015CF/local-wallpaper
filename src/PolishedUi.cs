@@ -15,7 +15,7 @@ internal sealed partial class ControlWindow {
   arrangingSide = true;
   try {
   int width = Math.Max(1, side.DisplayRectangle.Width);
-  int available = Math.Max(0, side.Parent == null ? side.DisplayRectangle.Height : side.Parent.ClientSize.Height - side.Margin.Vertical - side.Padding.Vertical);
+  int available = Math.Max(0, side.Parent == null ? side.DisplayRectangle.Height : side.Parent.ClientSize.Height - side.Padding.Vertical);
   int buttonHeight = Math.Max(U(40), HomeTypography.LineHeight(preview.Font) + U(12));
   int nameHeight = HomeTypography.WrappedHeight(selectedName.Text, selectedName.Font, width, 2) + U(4);
   int noteHeight = HomeTypography.WrappedHeight(selectedNote.Text, selectedNote.Font, width, 2) + U(4);
@@ -36,6 +36,7 @@ internal sealed partial class ControlWindow {
   // Cap the surface at its comfortable content height instead of stretching an empty white tail.
   available = Math.Min(available, required + desiredImage + (visibleRows + 1) * U(20));
   side.Height = available + side.Padding.Vertical;
+  side.Margin = new Padding(0, Math.Max(0, (side.Parent.ClientSize.Height - side.Height) / 2), 0, 0);
   int imageHeight = Math.Max(0, Math.Min(desiredImage, available - required - (visibleRows + 1) * U(4)));
   if (imageHeight < U(48)) imageHeight = 0;
   heights[0] = imageHeight;
@@ -56,7 +57,7 @@ internal sealed partial class ControlWindow {
  void BuildPolishedUi(){
   using(var g=CreateGraphics())uiScale=g.DpiX/96f;
   AutoScaleMode=AutoScaleMode.None;Font=new Font("Microsoft YaHei UI",9.5f);ForeColor=Theme.Ink;Ink=Theme.Ink;Muted=Theme.Muted;Blue=Theme.Blue;
-  Text="本地壁纸 · R35";Name="LocalWallpaperGallery";var area=Screen.PrimaryScreen.WorkingArea;ClientSize=HomeLayout.Client(area.Size,uiScale);
+  Text="本地壁纸 · R36";Name="LocalWallpaperGallery";var area=Screen.PrimaryScreen.WorkingArea;ClientSize=HomeLayout.Client(area.Size,uiScale);
   MinimumSize=new Size(Math.Min(U(900),area.Width-24),Math.Min(U(620),area.Height-32));StartPosition=FormStartPosition.CenterScreen;BackColor=Theme.Canvas;
   var root=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(U(24),U(12),U(24),U(12)),ColumnCount=1,RowCount=3};
   homeRows=root;

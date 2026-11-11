@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -41,6 +41,7 @@ internal sealed class V3Inspection {
 }
 
 internal static class V3Package {
+ internal static long PreviewDecodedBytes;internal static int PreviewReads;
  internal const uint Magic = 0x03505743;
  internal const int MaxTable = 1024 * 1024;
  internal const int MaxImage = 8 * 1024 * 1024;
@@ -124,7 +125,7 @@ internal static class V3Package {
    }
    result.MemberCount = result.Entries.Count;
    var preview = result.Entries.FirstOrDefault(x => x.Name.Equals("preview.jpg", StringComparison.OrdinalIgnoreCase) || x.Name.Equals("preview.png", StringComparison.OrdinalIgnoreCase));
-   if (preview != null) { result.PreviewMember = preview.Name; if (preview.Blocks == 1 && preview.StoredBytes <= MaxImage && preview.DecodedBytes <= MaxImage) { stream.Position = preview.PhysicalOffset; byte[] image = DecodeBlock(Exact(r, checked((int)preview.StoredBytes)), preview.DecodedBytes, MaxImage, check); result.PreviewBytes = image.Length; result.PreviewSha256 = Sha(image); } }
+   if (preview != null) { result.PreviewMember = preview.Name; if (preview.Blocks == 1 && preview.StoredBytes <= MaxImage && preview.DecodedBytes <= MaxImage) { stream.Position = preview.PhysicalOffset; byte[] image = DecodeBlock(Exact(r, checked((int)preview.StoredBytes)), preview.DecodedBytes, MaxImage, check); PreviewDecodedBytes+=image.Length;PreviewReads++;result.PreviewBytes = image.Length; result.PreviewSha256 = Sha(image); } }
    var project = result.Entries.FirstOrDefault(x => x.Name.Equals("project.json", StringComparison.OrdinalIgnoreCase));
    if (project != null && project.Blocks == 1 && project.StoredBytes <= MaxImage && project.DecodedBytes <= MaxImage) {
     stream.Position = project.PhysicalOffset; var obj = JsonObject(DecodeBlock(Exact(r, checked((int)project.StoredBytes)), project.DecodedBytes, MaxImage, check));
@@ -148,6 +149,6 @@ internal static class V3Package {
  internal static byte[] ReadPreview(string path, Action check, out string member) {
   var x = ReadCore(path, false, check); member = x.PreviewMember; if (member == null) throw new NotSupportedException("v3包没有根目录preview.jpg或preview.png");
   string selected = member; var e = x.Entries.First(v => v.Name.Equals(selected, StringComparison.OrdinalIgnoreCase)); if (e.Blocks != 1 || e.StoredBytes > MaxImage || e.DecodedBytes > MaxImage) throw new InvalidDataException("v3封面不是单块或超过封面预算");
-  using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete)) using (var r = new BinaryReader(stream)) { stream.Position = e.PhysicalOffset; return DecodeBlock(Exact(r, checked((int)e.StoredBytes)), e.DecodedBytes, MaxImage, check); }
+  using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete)) using (var r = new BinaryReader(stream)) { stream.Position = e.PhysicalOffset; byte[] image=DecodeBlock(Exact(r, checked((int)e.StoredBytes)), e.DecodedBytes, MaxImage, check);PreviewReads++;PreviewDecodedBytes+=image.Length;return image; }
  }
 }

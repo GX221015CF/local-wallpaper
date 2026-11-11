@@ -17,6 +17,7 @@ internal sealed class VideoCoverBinding {
 }
 
 internal static class VideoCovers {
+    internal static int FrameAttempts;internal static long FrameImageBytes;
     internal const string Kind = "video-auto-frame-r30";
     static string Folder(string hash) {
         if (!PackageAnalysis.HashText(hash)) throw new InvalidDataException("视频封面需要完整资源身份");
@@ -81,9 +82,10 @@ internal static class VideoCovers {
                 Directory.CreateDirectory(CoverCache.WorkFolder);
                 string id = Guid.NewGuid().ToString("N").Substring(0, 12);
                 temporary = Path.Combine(CoverCache.WorkFolder, "v-" + id + ".mp4");
-                VideoPackage.DecodeForCover(source, temporary, hash, check);
+                FrameAttempts++;VideoPackage.DecodeForCover(source, temporary, hash, check);
                 temporaryCreated = true;
                 using (var frame = VideoFrameDecoder.Decode(temporary, check)) {
+                    FrameImageBytes+=(long)frame.Width*frame.Height*4;
                     double scale = Math.Min(1, Math.Min(360.0 / frame.Width, 240.0 / frame.Height));
                     int width = Math.Max(1, (int)Math.Round(frame.Width * scale));
                     int height = Math.Max(1, (int)Math.Round(frame.Height * scale));

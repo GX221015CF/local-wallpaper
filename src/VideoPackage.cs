@@ -2,6 +2,7 @@ using System;using System.IO;using System.Text;using System.Linq;using System.Co
 // Read-only view of the known local video transport. Stored bytes are never rewritten.
 // Fixed table and absolute-offset modulo-16 match the identity-pinned engine's reader.
 internal static class VideoPackage {
+ internal static long CoverTransformHashedBytes;
  internal const string Format="LX-video-mp4-xor16";
  static readonly byte[] Key={0x64,0x6a,0x6b,0x38,0x26,0x24,0x64,0x66,0x60,0x32,0x32,0x33,0x6a,0x73,0x6a,0x68};
  internal static bool IsVideo(string format){return format==Format;}
@@ -17,7 +18,7 @@ internal static class VideoPackage {
    if(input.Length>256L*1048576)throw new InvalidDataException("视频超过256MiB取帧预算");
    byte[] buffer=new byte[262144];long offset=0;int count;
    while((count=input.Read(buffer,0,buffer.Length))>0){
-    check();hash.TransformBlock(buffer,0,count,null,0);
+    check();CoverTransformHashedBytes+=count;hash.TransformBlock(buffer,0,count,null,0);
     for(int index=0;index<count;index++)buffer[index]^=Key[(offset+index)%16];
     output.Write(buffer,0,count);offset+=count;
    }

@@ -5,7 +5,9 @@ internal static class ResourcePresentation {
  internal static string Id(string resourceId,string catalogId){return OfficialNameStore.Id(resourceId)?"ID "+resourceId:"本地条目 "+(catalogId??"未登记");}
  internal static string Id(WallpaperItem item){return item==null?"尚未选择":Id(item.ResourceId??(item.NameSource==null?null:item.NameSource.Id),item.Id);}
  internal static string Card(WallpaperItem item,string status){
-  string compact=(status??"").Replace(" · 桌面未验证","");
+  string compact=(status??"").Replace(" · 桌面未验证","").Replace(" · 桌面已验证","");
+  if(compact=="已导入 · 播放未验证"||compact=="播放待确认"||compact=="播放未验证")compact="未验证";
+  else if(compact=="窗口已确认"||compact=="窗口画面已确认"||compact=="预览已确认"||compact=="已验证")compact="已确认";
   return compact+" · "+Id(item);
  }
  internal static string FailureMaterials(string run){
