@@ -100,23 +100,19 @@ internal static class RefinementRegression {
     }finally{dialog.Dispose();}
    }
   });
-  Check("fixed-settings-indicator-is-derived-only-from-selected-page",()=>{
+  Check("settings-underline-page-resize-consistency",()=>{
    using(var tabs=new MaterialTabs()){
     for(int i=0;i<4;i++)tabs.TabPages.Add("分组"+i);tabs.CreateControl();
     foreach(int index in new[]{0,3,1,2,2,0,3,0}){
      tabs.SelectedIndex=index;tabs.Size=new Size(700-index*25,350);tabs.PerformLayout();
      Need(tabs.SelectedTab==tabs.TabPages[index],"actual selected content remains final selected index");
-     using(var bitmap=new Bitmap(700,60))using(var graphics=Graphics.FromImage(bitmap)){
-      for(int i=0;i<4;i++)typeof(MaterialTabs).GetMethod("OnDrawItem",Flags).Invoke(tabs,new object[]{new DrawItemEventArgs(graphics,tabs.Font,new Rectangle(i*130,0,130,42),i,DrawItemState.None)});
-      Color selected=bitmap.GetPixel(index*130+10,20);Need(selected.R==211&&selected.G==227&&selected.B==253,"actual selected draw state matches content without delayed indicator");
-     }
+     Need(tabs.Indicator==tabs.TargetIndicator&&!tabs.AnimationRunning,"hidden/resize indicator snaps to current selected page");
     }
-    Need(!typeof(MaterialTabs).GetFields(Flags).Any(field=>typeof(System.Windows.Forms.Timer).IsAssignableFrom(field.FieldType)),"no stale animation timer can restore previous selection");
    }
   });
   Check("resource-ID-labels-preserve-titles-and-confirmation-semantics",()=>{
    var item=new WallpaperItem{Id="local-guid",ResourceId="395741",Name="本地壁纸 395741",PreviewConfirmedSha256=new string('a',64)};
-   Need(ResourcePresentation.Card(item,"窗口已确认 · 桌面未验证")=="窗口已确认 · ID 395741","card removes display-only desktop-unverified suffix and labels ID");
+   Need(ResourcePresentation.Card(item,"窗口已确认 · 桌面未验证")=="已确认 · ID 395741","card removes display-only desktop-unverified suffix and labels ID");
    Need(item.Name=="本地壁纸 395741"&&item.PreviewConfirmedSha256==new string('a',64),"titles and original confirmation remain intact");
    item.ResourceId=null;Need(ResourcePresentation.Id(item)=="本地条目 local-guid","local identifier is never a truncated official ID");
   });

@@ -55,7 +55,7 @@ internal static class MaterialRenameRegression {
    Need(dialog.CancelButton==dialog.CancelButtonControl,"rename-cancel-is-explicit-and-escape-accessible");
   }
   using(var window=new ControlWindow(null,0,null)){
-   var settings=(Form)Field(window,"settingsWindow");var tabs=(TabControl)Field(window,"settingsTabs");
+   var settings=(Form)Field(window,"settingsWindow");var tabs=(MaterialTabs)Field(window,"settingsTabs");
    Need(tabs.TabPages.Count==4,"settings-contains-all-four-existing-feature-groups");
    Need(!settings.Visible&&!window.Visible,"control-construction-never-shows-a-window");
    foreach(string field in new[]{"sourceHint","libraryHint","libraryPathRow","loginOptions","mute"}){

@@ -18,9 +18,9 @@ internal sealed partial class ControlWindow {
   int width = Math.Max(1, side.DisplayRectangle.Width);
   int available = Math.Max(0, side.Parent == null ? side.DisplayRectangle.Height : side.Parent.ClientSize.Height - side.Padding.Vertical);
   int buttonHeight = Math.Max(U(40), HomeTypography.LineHeight(preview.Font) + U(12));
-  int nameHeight = HomeTypography.WrappedHeight(selectedName.Text, selectedName.Font, width, 2) + U(4);
-  int noteHeight = HomeTypography.WrappedHeight(selectedNote.Text, selectedNote.Font, width, 2) + U(4);
-  int playingHeight = HomeTypography.WrappedHeight(nowPlaying.Text, nowPlaying.Font, width, 2) + U(4);
+  int nameHeight = HomeTypography.LineHeight(selectedName.Font)*2 + U(4);
+  int noteHeight = HomeTypography.LineHeight(selectedNote.Font)*2 + U(4);
+  int playingHeight = HomeTypography.LineHeight(nowPlaying.Font)*2 + U(4);
   int[] heights = { 0, nameHeight, noteHeight, buttonHeight, confirmationVisible ? buttonHeight : 0,
    buttonHeight, buttonHeight, playingHeight };
   int required = 0, visibleRows = 0;
@@ -32,8 +32,8 @@ internal sealed partial class ControlWindow {
    required -= heights[7] - HomeTypography.LineHeight(nowPlaying.Font) - U(4);
    heights[7] = HomeTypography.LineHeight(nowPlaying.Font) + U(4);
   }
-  double ratio = selectedImage.Image == null ? 16d / 9 : (double)selectedImage.Image.Width / selectedImage.Image.Height;
-  int desiredImage = Math.Min(U(260), (int)Math.Round(width / ratio));
+  // The viewport depends on the available window, never on the arriving image.
+  int desiredImage = Math.Min(U(240), (int)Math.Round(width * 3d / 4));
   // Cap the surface at its comfortable content height instead of stretching an empty white tail.
   available = Math.Min(available, required + desiredImage + (visibleRows + 1) * U(20));
   side.Height = available + side.Padding.Vertical;
@@ -58,7 +58,7 @@ internal sealed partial class ControlWindow {
  void BuildPolishedUi(){
   using(var g=CreateGraphics())uiScale=g.DpiX/96f;
   AutoScaleMode=AutoScaleMode.None;Font=new Font("Microsoft YaHei UI",9.5f);ForeColor=Theme.Ink;Ink=Theme.Ink;Muted=Theme.Muted;Blue=Theme.Blue;
-  Text="本地壁纸 · R40";Name="LocalWallpaperGallery";var area=Screen.PrimaryScreen.WorkingArea;ClientSize=HomeLayout.Client(area.Size,uiScale);
+  Text="本地壁纸 · R41";Name="LocalWallpaperGallery";var area=Screen.PrimaryScreen.WorkingArea;ClientSize=HomeLayout.Client(area.Size,uiScale);
   MinimumSize=new Size(Math.Min(U(900),area.Width-24),Math.Min(U(620),area.Height-32));StartPosition=FormStartPosition.CenterScreen;BackColor=Theme.Canvas;
   var root=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(U(24),U(12),U(24),U(12)),ColumnCount=1,RowCount=3};
   homeRows=root;
@@ -93,7 +93,7 @@ internal sealed partial class ControlWindow {
    first.Dock=second.Dock=DockStyle.Fill;first.Margin=new Padding(0,0,U(4),0);second.Margin=new Padding(U(4),0,0,0);panel.Controls.Add(first,0,0);panel.Controls.Add(second,1,0);return panel;
   };
   sideRows.RowCount=0;
-  selectedImage.SizeMode=PictureBoxSizeMode.Zoom;selectedImage.BackColor=Color.White;row(selectedImage,106);
+  selectedImage.SizeMode=PictureBoxSizeMode.Zoom;selectedImage.BackColor=Color.FromArgb(237,239,243);selectedImage.Paint+=DrawHomePlaceholder;row(selectedImage,106);
   selectedName.Font=new Font(Font.FontFamily,12,FontStyle.Bold);row(selectedName,40);selectedNote.ForeColor=Muted;selectedNote.AutoEllipsis=true;selectedNote.UseMnemonic=false;row(selectedNote,38);
   Configure(preview,"预览",120);preview.Name="PreviewWallpaper";Configure(desktop,"设为桌面",120);desktop.Name="ApplyWallpaperToDesktop";((SoftButton)desktop).Primary=true;row(pair(preview,desktop),44);
   Configure(confirmPreview,"画面正确，完成确认",240);confirmPreview.Click+=(s,e)=>ConfirmCurrentPreview("human-button");row(confirmPreview,36);

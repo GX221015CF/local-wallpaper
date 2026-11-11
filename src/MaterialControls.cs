@@ -42,14 +42,29 @@ internal sealed class SpringToggle : CheckBox {
  protected override void Dispose(bool disposing){if(disposing)animation.Dispose();base.Dispose(disposing);}
 }
 
-internal sealed class FloatingNameInput : UserControl {
- internal readonly TextBox Input=new TextBox{BorderStyle=BorderStyle.None};
- readonly Label caption=new Label();readonly Timer animation=new Timer{Interval=16};readonly System.Diagnostics.Stopwatch clock=new System.Diagnostics.Stopwatch();
- float position=1,start,target=1;
- internal FloatingNameInput(){Height=64;BackColor=Color.White;Padding=new Padding(14);caption.Text="壁纸名称";caption.ForeColor=Theme.Muted;caption.AutoSize=true;Input.Location=new Point(14,32);Input.Anchor=AnchorStyles.Left|AnchorStyles.Right|AnchorStyles.Top;Input.Width=Width-28;caption.Location=new Point(14,8);Controls.Add(Input);Controls.Add(caption);Input.TextChanged+=(s,e)=>Animate();Input.GotFocus+=(s,e)=>Animate();Input.LostFocus+=(s,e)=>Animate();animation.Tick+=(s,e)=>{float t=Math.Min(1,clock.ElapsedMilliseconds/240f);position=start+(target-start)*t;caption.Top=8+(int)(13*(1-position));Invalidate();if(t>=1)animation.Stop();};Resize+=(s,e)=>Input.Width=Math.Max(20,Width-28);}
- void Animate(){start=position;target=Input.Focused||Input.TextLength>0?1:0;clock.Restart();if(SoftButton.MotionEnabled)animation.Start();else{position=target;caption.Top=8+(int)(13*(1-position));}Invalidate();}
- protected override void OnPaint(PaintEventArgs e){base.OnPaint(e);using(var pen=new Pen(Input.Focused?Theme.Blue:Theme.Line,Input.Focused?2:1))e.Graphics.DrawRectangle(pen,0,0,Width-1,Height-1);}
- protected override void Dispose(bool disposing){if(disposing)animation.Dispose();base.Dispose(disposing);}
+internal sealed class WallpaperNameInput : UserControl {
+ internal readonly TextBox Input=new TextBox{BorderStyle=BorderStyle.None,AutoSize=false};
+ readonly Label caption=new Label{Text="壁纸名称",AutoSize=false,ForeColor=Theme.Muted};
+ Rectangle editorBounds;
+ int InputLineHeight {get{return Math.Max(Input.PreferredHeight,TextRenderer.MeasureText("中文Ag",Input.Font,Size.Empty,TextFormatFlags.NoPadding).Height+4);}}
+ internal int ContentHeight {get{return Font.Height+8+InputLineHeight+24;}}
+ internal WallpaperNameInput(){
+  BackColor=Theme.Canvas;Input.BackColor=Color.White;Input.AccessibleName="壁纸名称";
+  Controls.Add(caption);Controls.Add(Input);Height=ContentHeight;
+  Input.GotFocus+=(s,e)=>Invalidate();Input.LostFocus+=(s,e)=>Invalidate();
+ }
+ protected override void OnLayout(LayoutEventArgs e){
+  int captionHeight=Font.Height+8;
+  caption.SetBounds(0,0,Width,captionHeight);
+  editorBounds=new Rectangle(0,captionHeight,Math.Max(1,Width-1),InputLineHeight+22);
+  Input.SetBounds(12,editorBounds.Top+11,Math.Max(1,Width-24),InputLineHeight);
+  base.OnLayout(e);
+ }
+ protected override void OnFontChanged(EventArgs e){base.OnFontChanged(e);PerformLayout();Invalidate();}
+ protected override void OnPaint(PaintEventArgs e){
+  base.OnPaint(e);using(var fill=new SolidBrush(Color.White))e.Graphics.FillRectangle(fill,editorBounds);
+  using(var pen=new Pen(Input.Focused?Theme.Blue:Theme.Line,Input.Focused?2:1))e.Graphics.DrawRectangle(pen,editorBounds);
+ }
 }
 
 internal sealed class MaterialNotice : SummaryLabel {
@@ -59,21 +74,6 @@ internal sealed class MaterialNotice : SummaryLabel {
  protected override void Dispose(bool disposing){if(disposing)timer.Dispose();base.Dispose(disposing);}
 }
 
-internal sealed class MaterialTabs : TabControl {
- internal MaterialTabs(){DrawMode=TabDrawMode.OwnerDrawFixed;ItemSize=new Size(130,42);SizeMode=TabSizeMode.Fixed;Padding=new Point(12,8);}
- protected override void OnSelectedIndexChanged(EventArgs e){base.OnSelectedIndexChanged(e);Invalidate();}
- protected override void OnResize(EventArgs e){base.OnResize(e);Invalidate();}
- protected override void OnVisibleChanged(EventArgs e){base.OnVisibleChanged(e);Invalidate();}
- protected override void OnDrawItem(DrawItemEventArgs e){
-  var g=e.Graphics;g.SmoothingMode=SmoothingMode.AntiAlias;using(var background=new SolidBrush(Theme.Canvas))g.FillRectangle(background,e.Bounds);
-  bool chosen=e.Index==SelectedIndex;
-  if(chosen){var bounds=new RectangleF(e.Bounds.X+2,e.Bounds.Y+3,e.Bounds.Width-4,e.Bounds.Height-6);
-   using(var path=Theme.Round(bounds,17))using(var brush=new SolidBrush(Color.FromArgb(211,227,253)))g.FillPath(brush,path);
-   using(var pen=new Pen(Theme.Blue,2))g.DrawLine(pen,e.Bounds.Left+24,e.Bounds.Bottom-3,e.Bounds.Right-24,e.Bounds.Bottom-3);
-  }
-  TextRenderer.DrawText(g,TabPages[e.Index].Text,Font,e.Bounds,chosen?Theme.Blue:Theme.Muted,TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter);
- }
-}
 internal sealed class LoadingSkeleton : Control {
  readonly Timer timer=new Timer{Interval=80};int step;
  internal LoadingSkeleton(){Height=48;DoubleBuffered=true;timer.Tick+=(s,e)=>{step=(step+1)%6;Invalidate();};VisibleChanged+=(s,e)=>{if(Visible&&SoftButton.MotionEnabled)timer.Start();else timer.Stop();};}

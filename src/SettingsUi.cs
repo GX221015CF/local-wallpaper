@@ -33,7 +33,7 @@ internal sealed partial class ControlWindow {
   settingsWindow=new MaterialDialog{Text="设置 · 本地壁纸",Name="WallpaperSettings",StartPosition=FormStartPosition.CenterParent,ClientSize=new Size(820,620),MinimumSize=new Size(680,500),ShowInTaskbar=false};
   var outer=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(18),RowCount=2,ColumnCount=1};outer.RowStyles.Add(new RowStyle(SizeType.Percent,100));outer.RowStyles.Add(new RowStyle(SizeType.Absolute,48));settingsWindow.Controls.Add(outer);
   settingsTabs=new MaterialTabs{Dock=DockStyle.Fill,Font=Font};outer.Controls.Add(settingsTabs,0,0);
-  foreach(var name in SettingsGroups)settingsTabs.TabPages.Add(new TabPage(name){BackColor=Theme.Canvas,UseVisualStyleBackColor=false});
+  foreach(var name in SettingsGroups)settingsTabs.TabPages.Add(new Panel{Text=name,BackColor=Theme.Canvas});
   var storage=SettingsSection("来源与存储","来源供发现候选使用；导入会把选中的资源复制到持久个人库。原缓存保持原位置。");settingsTabs.TabPages[0].Controls.Add(storage);
   sourceHint.AutoSize=false;sourceHint.Size=new Size(600,34);sourceHint.Location=Point.Empty;storage.Controls.Add(sourceHint);
   sourcePathRow=new SettingsPathRow("壁纸来源","发现本机已有候选。更改时仍核对已知缓存布局。",()=>ChooseSourceLocation());

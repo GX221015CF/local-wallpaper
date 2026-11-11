@@ -211,7 +211,7 @@ internal static class InteractionRegression
         Check("settings-path-rows-font-layout-copy-and-missing", () =>
         {
             var window = (Form)Field(owner, "settingsWindow");
-            foreach (int group in new[] { 0, 1, 0, 2, 3, 0 }) ((TabControl)Field(owner, "settingsTabs")).SelectedIndex = group;
+            foreach (int group in new[] { 0, 1, 0, 2, 3, 0 }) ((MaterialTabs)Field(owner, "settingsTabs")).SelectedIndex = group;
             foreach (string field in new[] { "sourcePathRow", "libraryPathRow", "namesPathRow", "componentPathRow" })
             {
                 var row = (SettingsPathRow)Field(owner, field);

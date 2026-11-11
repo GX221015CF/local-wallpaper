@@ -3,20 +3,26 @@ using System.Drawing;
 using System.Windows.Forms;
 
 internal sealed class RenameWallpaperDialog : MaterialDialog {
- internal readonly FloatingNameInput Editor=new FloatingNameInput();
+ internal readonly WallpaperNameInput Editor=new WallpaperNameInput();
  internal readonly Label Validation=new Label();
  internal readonly SoftButton SaveButton=new SoftButton{Text="保存名称",Primary=true};
  internal readonly SoftButton CancelButtonControl=new SoftButton{Text="取消",DialogResult=DialogResult.Cancel};
  readonly Action<string> save;
  internal RenameWallpaperDialog(string current,Action<string> commit){
-  save=commit;Text="重命名壁纸";StartPosition=FormStartPosition.CenterParent;ClientSize=new Size(480,250);MinimumSize=new Size(440,270);MaximizeBox=false;MinimizeBox=false;
+  save=commit;Text="重命名壁纸";StartPosition=FormStartPosition.CenterParent;ClientSize=new Size(520,270);MinimumSize=new Size(440,270);MaximizeBox=false;MinimizeBox=false;
   var layout=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(24),ColumnCount=1,RowCount=4};
-  layout.RowStyles.Add(new RowStyle(SizeType.Absolute,34));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,66));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,42));Controls.Add(layout);
+  layout.RowStyles.Add(new RowStyle(SizeType.Absolute,34));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,Editor.ContentHeight));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,42));Controls.Add(layout);
   layout.Controls.Add(new Label{Text="给这张壁纸起个容易找到的名字",AutoSize=true,ForeColor=Theme.Muted},0,0);
   Editor.Dock=DockStyle.Fill;Editor.Input.Text=current;Editor.Input.MaxLength=WallpaperNames.MaximumLength+1;layout.Controls.Add(Editor,0,1);
   Validation.Dock=DockStyle.Fill;Validation.ForeColor=Color.Firebrick;layout.Controls.Add(Validation,0,2);
   var buttons=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.RightToLeft};foreach(var b in new[]{SaveButton,CancelButtonControl}){b.Size=new Size(120,38);buttons.Controls.Add(b);}layout.Controls.Add(buttons,0,3);
   SaveButton.Click+=(s,e)=>TrySave();CancelButtonControl.Click+=(s,e)=>CancelEdit();Editor.Input.TextChanged+=(s,e)=>ValidateInput();AcceptButton=SaveButton;CancelButton=CancelButtonControl;
+  Layout+=(s,e)=>{
+   layout.RowStyles[0].Height=Font.Height+14;
+   layout.RowStyles[1].Height=Editor.ContentHeight+8;
+   layout.RowStyles[3].Height=Math.Max(42,SaveButton.Font.Height+20);
+   foreach(var button in new[]{SaveButton,CancelButtonControl})button.Height=Math.Max(38,button.Font.Height+16);
+  };
   Shown+=(s,e)=>{Editor.Input.Focus();Editor.Input.SelectAll();};ValidateInput();
  }
  internal void CancelEdit(){DialogResult=DialogResult.Cancel;Close();}
