@@ -13,6 +13,9 @@ internal sealed class EngineCore:IDisposable {
  [UnmanagedFunctionPointer(CallingConvention.StdCall)]internal delegate int Start(IntPtr self,IntPtr callback,IntPtr reserved);
  [UnmanagedFunctionPointer(CallingConvention.StdCall)]internal delegate int Stop(IntPtr self);
  [UnmanagedFunctionPointer(CallingConvention.StdCall)]internal delegate int GetWindow(IntPtr self,out IntPtr window);
+ [UnmanagedFunctionPointer(CallingConvention.StdCall)]internal delegate void WindowEvent(IntPtr self,IntPtr window,uint message,IntPtr buttons,IntPtr coordinates);
+ IntPtr inputWindow;WindowEvent windowEvent;bool playbackStarted;
+ internal bool CanForwardPointer{get{return playbackStarted&&self!=IntPtr.Zero&&windowEvent!=null;}}
  IntPtr module,self,rootCookie,depdllCookie;Release release;readonly Action<string,object> log;string engineRoot;
  public EngineCore(Action<string,object> logger){log=logger;}
  T Method<T>(int offset)where T:class{return Marshal.GetDelegateForFunctionPointer(Marshal.ReadIntPtr(Marshal.ReadIntPtr(self),offset),typeof(T))as T;}
@@ -28,6 +31,9 @@ internal sealed class EngineCore:IDisposable {
   if(count!=23||!hostSeen)throw new InvalidDataException("外部组件契约应为23项且含自有宿主身份");
  }
  public void Open(IntPtr hwnd,string cwpRoot,string cwpFile,string externalRoot,string contractHash,string hostHash,uint volume){
+#if TEST_BUILD
+  if(TestOpenFactory!=null){release=TestOpenRelease;InitializePlayback(hwnd,cwpRoot,cwpFile,volume,TestOpenFactory,"managed-ABI-substitute");return;}
+#endif
   VerifyExternal(externalRoot,contractHash,hostHash);Directory.SetCurrentDirectory(engineRoot);
   // Restrict native DLL lookup to system locations and the two verified install folders.
   const uint LOAD_LIBRARY_SEARCH_DEFAULT_DIRS=0x1000,LOAD_LIBRARY_SEARCH_USER_DIRS=0x400;
@@ -52,8 +58,18 @@ internal sealed class EngineCore:IDisposable {
   if(video)Check("set-video-transport",Method<SetNumber>(0x4c)(self,1));
   SetVolume(volume);Check("request-fps",Method<SetNumber>(0x20)(self,30));
   Check("engine-start",Method<Start>(0x2c)(self,IntPtr.Zero,IntPtr.Zero));
+  // Pinned official lxwplayer forwards render-window messages through slot 0x3c.
+  // WM_MOUSEMOVE reaches GameSceneEventReceiver and mouse-bound particle control points.
+  if(!video){windowEvent=Method<WindowEvent>(0x3c);inputWindow=hwnd;}
+  playbackStarted=true;
+ }
+ internal bool ForwardMouseMove(int x,int y){
+  if(!CanForwardPointer||x<0||y<0||x>Int16.MaxValue||y>Int16.MaxValue)return false;
+  int packed=unchecked((int)(((uint)(ushort)y<<16)|(ushort)x));
+  windowEvent(self,inputWindow,0x200,IntPtr.Zero,new IntPtr(packed));return true;
  }
 #if TEST_BUILD
+ internal static Factory TestOpenFactory;internal static Release TestOpenRelease;
  internal void TestInitialize(IntPtr hwnd,string root,string file,uint volume,Factory factory,Release destroy){release=destroy;InitializePlayback(hwnd,root,file,volume,factory,"managed-ABI-substitute");}
 #endif
 
@@ -68,6 +84,7 @@ internal sealed class EngineCore:IDisposable {
   return RemoveDllDirectory(cookie);
  }
  public void Dispose(){
+  playbackStarted=false;windowEvent=null;inputWindow=IntPtr.Zero;
   var errors=new List<Exception>();
   if(self!=IntPtr.Zero){
    IntPtr target=self;Stop stop=null;

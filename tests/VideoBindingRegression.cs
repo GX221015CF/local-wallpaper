@@ -13,6 +13,7 @@ internal static class VideoBindingRegression {
    Put(0x20,new EngineCore.SetNumber(delegate(IntPtr s,uint v){Calls.Add("fps");return Result("fps");}));
    Put(0x2c,new EngineCore.Start(delegate(IntPtr s,IntPtr cb,IntPtr reserve){Calls.Add("start");return Result("start");}));
    Put(0x30,new EngineCore.Stop(delegate(IntPtr s){Calls.Add("stop");return StopFail?-1:0;}));
+   Put(0x3c,new EngineCore.WindowEvent(delegate(IntPtr s,IntPtr window,uint message,IntPtr buttons,IntPtr point){}));
   }
   int Result(string phase){return Fail==phase?-1:0;}
   void Put(int off,Delegate d){keep.Add(d);Marshal.WriteIntPtr(Table,off,Marshal.GetFunctionPointerForDelegate(d));}
