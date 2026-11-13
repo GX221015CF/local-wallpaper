@@ -81,6 +81,30 @@
       "sha256": "f710320c26b51cdd9e1c07677b32106b05c9d5419bbce919822242671770a825",
       "meaning": "官方未登录新资源的本机实际结果，免费标签未知",
       "rawFileUploaded": false
+    },
+    {
+      "id": "R43-build",
+      "workspaceRelativePath": "wallpaper-source/artifacts/build-20261112-132404764/build-result.json",
+      "bytes": 4384,
+      "sha256": "a4c4a952342d2e535ceb29b4e8171019a699c962af330b531c5ebf098d752ba1",
+      "meaning": "R43完整构建正常结束，原始回执仅本地",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "R43-internal",
+      "workspaceRelativePath": "personal_particle_cause_r43_20261112/evidence/internal-tests-r43.json",
+      "bytes": 1676,
+      "sha256": "886dbef66d9b82de22878e99cb91c9ea13e4492c15d50bab6b0dadbf2d904f54",
+      "meaning": "161项自有验证及其实际范围",
+      "rawFileUploaded": false
+    },
+    {
+      "id": "R43-particle-user",
+      "workspaceRelativePath": "personal_particle_cause_r43_20261112/evidence/user-particle-acceptance-r43.json",
+      "bytes": 3007,
+      "sha256": "0c67776e484dff235a8602959a95467c437a134e35e2bae53573db0f7f1ee640",
+      "meaning": "用户确认粒子与官方渠道一致；反馈未逐模式指定，输入与退出按两个模式日志分别核验",
+      "rawFileUploaded": false
     }
   ]
 }

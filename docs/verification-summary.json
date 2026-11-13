@@ -1,66 +1,189 @@
 {
+  "schemaVersion": 2,
+  "currentStage": "R43",
+  "functionalVersion": "0.1.43-native-input-internal-r43",
+  "documentationUpdated": "2026-11-13",
   "sourceBaseline": "R30",
-  "functionalVersion": "0.1.30-import-video-cover-internal-r30",
-  "observations": [
-    {
-      "version": "R28",
-      "resource": "402242",
-      "passed": [
-        "window-preview",
-        "desktop-display",
-        "hide-and-tray-user-feedback",
-        "normal-close-and-restore"
-      ],
-      "limits": [
-        "tray visibility from user feedback",
-        "no separate tray-stop log; controller-close recorded"
-      ]
-    },
-    {
-      "version": "R29",
-      "resource": "402242",
-      "passed": [
-        "two-distinct-real-snapshots",
-        "replacement",
-        "card-user-feedback"
-      ],
-      "limits": [
-        "reopen normal from user feedback; only one GUI session recorded"
-      ]
-    },
-    {
-      "version": "R30",
-      "resources": [
-        "402242",
-        "398417",
-        "403178"
-      ],
-      "passed": [
-        "three-uncached-system-video-frames",
-        "preimport-list-user-feedback",
-        "402242-explicit-import-and-card",
-        "normal-exit"
-      ],
-      "limits": [
-        "no playback or desktop rerun in R30"
-      ]
-    }
-  ],
+  "sourceBaselineMeaning": "Historical extraction and provenance. Current maintained implementation continues through R43.",
+  "currentBuild": {
+    "builtAt": "2026-11-12",
+    "result": "passed",
+    "buildEntry": "scripts/Build-Delivery.ps1",
+    "canonicalInputCount": 223,
+    "normalExit": true,
+    "packageBytes": 1796921,
+    "packageSha256": "3338ef7ad6d5c5d93094afc3962530dbc04f8e543934892867628b9eceb659f7",
+    "packageMembers": 29,
+    "independentExtractions": 2,
+    "publishedInputAbiVerified": true,
+    "publishedApplicationHandlersVerified": true,
+    "personalReadbackIndependentProcesses": 2,
+    "binaryUploaded": false,
+    "documentationOnlyRevision": true,
+    "newBuildPerformedForDocumentation": false
+  },
   "internalTests": {
-    "R30ActualHandlerAssertions": 43,
-    "R30IndependentProcessAssertions": 5,
-    "publishedAssemblyRealFrameResources": 3
+    "R43": [
+      {
+        "group": "native-input",
+        "assertions": 27,
+        "passed": true
+      },
+      {
+        "group": "video-initialization-ABI",
+        "assertions": 52,
+        "passed": true
+      },
+      {
+        "group": "shutdown",
+        "assertions": 13,
+        "passed": true
+      },
+      {
+        "group": "R41-visual",
+        "assertions": 36,
+        "passed": true
+      },
+      {
+        "group": "settings-color",
+        "assertions": 19,
+        "passed": true
+      },
+      {
+        "group": "stability",
+        "assertions": 13,
+        "passed": true
+      },
+      {
+        "group": "independent-readback",
+        "assertions": 1,
+        "passed": true
+      }
+    ],
+    "totalOwnedAssertions": 161,
+    "staticRouteAssertions": 10,
+    "scope": [
+      "actual-owned-handlers",
+      "managed-ABI-substitutes",
+      "unshown-controls-and-message-loop",
+      "geometry-font-and-offscreen",
+      "published-assembly-handlers"
+    ],
+    "scopeBoundary": "Each evidence kind retains its own coverage. Earlier observations are not R43 reruns."
   },
-  "package": {
-    "bytes": 1548592,
-    "sha256": "68342dd7051681ecd1deac999350cb421ca15daa6440cc7563dac212ea67a33b",
-    "binaryUploaded": false
+  "currentObservation": {
+    "version": "R43",
+    "resource": "385726",
+    "userConfirmedParticleAppearance": true,
+    "userComparison": "用户确认现在有粒子效果，和官方渠道的一样",
+    "userFeedbackMode": "该句未逐模式指定观感",
+    "runtimeInputAndNormalExit": [
+      {
+        "mode": "preview",
+        "moves": 23,
+        "inputFailed": false,
+        "normalExit": true,
+        "cleanupSucceeded": true
+      },
+      {
+        "mode": "desktop",
+        "moves": 234,
+        "inputFailed": false,
+        "normalExit": true,
+        "cleanupSucceeded": true
+      }
+    ],
+    "controllerCleanupConfirmed": true,
+    "rawLogsUploaded": false
   },
-  "externalConditions": {
-    "otherWindowsTested": false,
-    "otherWindowsRequiredAsGate": false,
-    "thirdPartyUsageTermsVerified": false,
-    "thirdPartyBinaryIncluded": false
+  "historicalBaselineR30": {
+    "sourceBaseline": "R30",
+    "functionalVersion": "0.1.30-import-video-cover-internal-r30",
+    "observations": [
+      {
+        "version": "R28",
+        "resource": "402242",
+        "passed": [
+          "window-preview",
+          "desktop-display",
+          "hide-and-tray-user-feedback",
+          "normal-close-and-restore"
+        ],
+        "limits": [
+          "tray visibility from user feedback",
+          "no separate tray-stop log; controller-close recorded"
+        ]
+      },
+      {
+        "version": "R29",
+        "resource": "402242",
+        "passed": [
+          "two-distinct-real-snapshots",
+          "replacement",
+          "card-user-feedback"
+        ],
+        "limits": [
+          "reopen normal from user feedback; only one GUI session recorded"
+        ]
+      },
+      {
+        "version": "R30",
+        "resources": [
+          "402242",
+          "398417",
+          "403178"
+        ],
+        "passed": [
+          "three-uncached-system-video-frames",
+          "preimport-list-user-feedback",
+          "402242-explicit-import-and-card",
+          "normal-exit"
+        ],
+        "limits": [
+          "no playback or desktop rerun in R30"
+        ]
+      }
+    ],
+    "internalTests": {
+      "R30ActualHandlerAssertions": 43,
+      "R30IndependentProcessAssertions": 5,
+      "publishedAssemblyRealFrameResources": 3
+    },
+    "package": {
+      "bytes": 1548592,
+      "sha256": "68342dd7051681ecd1deac999350cb421ca15daa6440cc7563dac212ea67a33b",
+      "binaryUploaded": false
+    },
+    "externalConditions": {
+      "otherWindowsTested": false,
+      "otherWindowsRequiredAsGate": false,
+      "thirdPartyUsageTermsVerified": false,
+      "thirdPartyBinaryIncluded": false
+    },
+    "privacy": "No store IDs, user absolute paths, process IDs, raw logs, screenshots or wallpaper bytes included."
   },
-  "privacy": "No store IDs, user absolute paths, process IDs, raw logs, screenshots or wallpaper bytes included."
+  "historicalContinuity": {
+    "R37": "Cross-process cache reuse verified. Actual OS reboot not performed.",
+    "R38": "Measured response improvement retained with subsequent user-reported blank-list regression.",
+    "R39": "Native viewport/order/offscreen tests passed. Later user feedback showed list and reported flicker.",
+    "R40": "Interaction and response tests retained. Later feedback drove R41 visual corrections.",
+    "R41": "Stable aspect-ratio viewport and rename input internally verified. Underline replaced by R42.",
+    "R42": "Selected-tab color transition implemented and internally verified. Other visual feedback remains separately scoped."
+  },
+  "remainingLimits": [
+    "Other Windows environments not tested; no longer a current prerequisite.",
+    "Third-party component usage and distribution terms incompletely verified.",
+    "Scene-group fallback effects and slot0x60 final semantics remain unknown.",
+    "Earlier 317495 first-preview observation gap and isolated registration-save failure retained.",
+    "Earlier unconfirmed visual observations remain scoped to their original evidence."
+  ],
+  "repositoryContent": {
+    "thirdPartyBinaryIncluded": false,
+    "wallpaperOrCoverIncluded": false,
+    "personalBindingsIncluded": false,
+    "rawLogsOrDiagnosticsIncluded": false,
+    "openSourceLicenseSpecified": false,
+    "visibility": "PRIVATE"
+  },
+  "privacy": "Sanitized facts and workspace-relative evidence locators only. Personal identifiers, bindings, paths and raw media remain local."
 }
