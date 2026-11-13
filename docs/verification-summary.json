@@ -182,8 +182,12 @@
     "wallpaperOrCoverIncluded": false,
     "personalBindingsIncluded": false,
     "rawLogsOrDiagnosticsIncluded": false,
-    "openSourceLicenseSpecified": false,
-    "visibility": "PRIVATE"
+    "openSourceLicenseSpecified": true,
+    "visibility": "PUBLIC",
+    "license": "MIT",
+    "copyright": "2026 GX221015CF",
+    "licenseScope": "Maintainer-owned or otherwise licensable code and related content. External engines, wallpaper, trademarks and font software retain separate terms. AI-generated icon provenance and third-party rights boundaries remain stated.",
+    "publicDecision": "Maintainer approved publication retaining unresolved applicable third-party terms."
   },
   "privacy": "Sanitized facts and workspace-relative evidence locators only. Personal identifiers, bindings, paths and raw media remain local."
 }
