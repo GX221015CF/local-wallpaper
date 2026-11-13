@@ -1,5 +1,6 @@
 # 说明索引
 
+- [内容来源与公开范围](publication-scope.md) 记录代码、兼容模块、图标、图示和系统字体的来源及待确认条件，当前PRIVATE与拟公开安排分别说明。
 - 当前功能版本为R43。构建与正常使用流程见[项目首页](../README.md)，粒子真实确认见[R43原生输入](native-input-r43.md)。
 - [阶段报告](stage-report.md) 汇总当前能力、证据层次、已解决故障与下一步。
 - [验证摘要](verification-summary.json) 单列当前R43构建/内部验证/用户反馈与R30历史基线。[原始提取后的独立构建快照](source-validation-summary.json)属于R30。
